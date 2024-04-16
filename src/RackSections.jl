@@ -26,6 +26,18 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 end
 
+@with_kw struct CeeLipsBraceInput
+
+    H::Float64
+    D::Float64
+    L::Float64
+    R::Float64
+    t::Float64
+    E::Float64
+    ν::Float64
+
+end
+
 @with_kw struct CeeLips
 
     input::CeeLipsInput
@@ -52,6 +64,18 @@ end
     Pcrd::Float64
     distortional_buckling_Mxx::CUFSM.Model
     Mcrd::Float64
+
+end
+
+@with_kw struct CeeLipsBrace
+
+    input::CeeLipsBraceInput
+    geometry::NamedTuple{(:coordinates, :x, :y)}
+    properties::CUFSM.SectionPropertiesObject
+    local_buckling_P::CUFSM.Model
+    Pcrℓ::Float64
+    distortional_buckling_P::CUFSM.Model
+    Pcrd::Float64
 
 end
 
@@ -573,7 +597,8 @@ function cee_with_lips(section_inputs)
     td[geometry.H_hole_element_index] .= td_H
 
     #net section properties 
-    net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
+    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
 
 
     #elastic buckling properties 
@@ -3016,6 +3041,109 @@ function unistrut_out(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pi
     return properties 
 
 end
+
+
+
+
+
+
+
+function cee_with_lips_brace_geometry(H, D, L, R, t)
+
+    segments = [L, D, H, D, L]
+    θ = [π/2, π, -π/2, 0.0, π/2]
+    r = [R, R, R, R]
+    n = [4, 4, 5, 4, 4]
+    n_r = [3, 3, 3, 3]
+
+    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
+
+    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
+    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+
+    geometry = (coordinates = section_geometry, x=x, y=y)
+
+    return geometry
+
+end
+
+
+
+
+function cee_with_lips_brace(H, D, L, R, t, E, ν)
+
+    # @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+
+    section_inputs = CeeLipsBraceInput(H, D, L, R, t, E, ν)
+
+    geometry = RackSections.cee_with_lips_brace_geometry(H, D, L, R, t)
+
+    #gross section properties 
+    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+
+    num_elem = length(geometry.x) - 1
+    tg = fill(t, num_elem)
+
+    
+    #elastic buckling properties 
+
+    #local buckling, compression
+    P = 1.0
+    Mxx = 0.0
+    Myy = 0.0
+    M11 = 0.0
+    M22 = 0.0
+    constraints = []
+    springs = []
+    neigs = 1
+    lengths = range(0.75*minimum([H, D]), 1.3*minimum([H,D]), 10)
+    local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
+    eig = 1
+    Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
+
+    
+    #distortional buckling 
+
+    #find approximate distortional buckling half-wavelength
+    CorZ = 0
+    b = D
+    d = L
+    θ = 90.0
+    Af,Jf,Ixf,Iyf,Ixyf,Cwf,xof,hxf,hyf,yof = AISIS100.v16.table23131(CorZ,t,b,d,θ)
+
+    ho = H
+    μ = ν
+    Lm = 999999999.0
+    Lcrd, not_used = AISIS100.v16.app23334(ho, μ, t, Ixf, xof, hxf, Cwf, Ixyf, Iyf, Lm)
+
+
+    td = fill(t, num_elem)
+
+
+    #distortional buckling, compression 
+    P = 1.0
+    Mxx = 0.0
+    Myy = 0.0
+    M11 = 0.0
+    M22 = 0.0
+    constraints = []
+    springs = []
+
+    lengths = range(0.75*Lcrd, 1.5*Lcrd, 9)
+    distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
+    Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
+
+
+    #gather up everything 
+    properties = CeeLipsBrace(section_inputs, geometry, gross_section_properties, local_buckling_P, Pcrℓ, distortional_buckling_P, Pcrd)
+
+    return properties 
+
+end
+
+
+
+
 
 
 end # module RackSections
