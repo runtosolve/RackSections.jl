@@ -4,6 +4,7 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 @with_kw struct CeeLipsInput
 
+    section_type::String
     H::Float64
     D::Float64
     L::Float64
@@ -438,7 +439,7 @@ end
 
 function cee_with_lips(section_inputs)
 
-    @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+    @unpack section_type, H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
     geometry = RackSections.cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
 
