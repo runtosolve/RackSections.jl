@@ -4,6 +4,7 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 @with_kw struct CeeLipsInput
 
+    member_type::String
     section_type::String
     H::Float64
     D::Float64
@@ -57,6 +58,8 @@ end
 
 @with_kw struct CeeLipsRibInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     L::Float64
@@ -116,6 +119,8 @@ end
 
 @with_kw struct CeeLipsBraceInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     L::Float64
@@ -143,6 +148,8 @@ end
 
 @with_kw struct RectangularTubeInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     R::Float64
@@ -184,6 +191,8 @@ end
 
 @with_kw struct HatLipsRibInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D1::Float64
     D2::Float64
@@ -250,6 +259,8 @@ end
 
 @with_kw struct HatRibInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D1::Float64
     D2::Float64
@@ -315,6 +326,8 @@ end
 
 @with_kw struct HatLipsTrapezoidalRibInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D1::Float64
     D2::Float64
@@ -383,6 +396,8 @@ end
 
 @with_kw struct UniStrutInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     L1::Float64
@@ -439,9 +454,9 @@ end
 
 function cee_with_lips(section_inputs)
 
-    @unpack section_type, H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+    @unpack member_type, section_type, H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
-    geometry = RackSections.cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
+    geometry = cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -758,14 +773,24 @@ end
 
 
 
-function rectangular_tube(H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D)
+function rectangular_tube(section_inputs)
 
-    input = RectangularTubeInput(H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D)
+    @unpack member_type, section_type, H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+
+    # input = RectangularTubeInput(H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D)
 
     geometry = rectangular_tube_geometry(H, D, R, t, dh_H, dh_D, de_H, de_D)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+
+    #remove NaNs to allow for writing to JSON
+    gross_section_properties.xs = -1
+    gross_section_properties.ys = -1
+    gross_section_properties.Cw = -1
+    gross_section_properties.B1 = -1
+    gross_section_properties.B2 = -1
+    gross_section_properties.wn = [-1, -1]
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -786,6 +811,13 @@ function rectangular_tube(H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
     net_section_properties = CrossSection.Properties.closed_thin_walled(xy_coords_with_holes, tg) 
     # net_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, tg) 
+
+    net_section_properties.xs = -1
+    net_section_properties.ys = -1
+    net_section_properties.Cw = -1
+    net_section_properties.B1 = -1
+    net_section_properties.B2 = -1
+    net_section_properties.wn = [-1, -1]
 
     #local buckling, compression
     P = 1.0
@@ -841,7 +873,7 @@ function rectangular_tube(H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
     #gather up everything 
-    properties = RectangularTube(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos)
+    properties = RectangularTube(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos)
 
     return properties 
 
@@ -952,11 +984,13 @@ end
 
 
 
-function cee_with_lips_rib(H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function cee_with_lips_rib(section_inputs)
 
-    input = CeeLipsRibInput(H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    @unpack member_type, section_type, H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
-    geometry = RackSections.cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    # input = CeeLipsRibInput(H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+
+    geometry = cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -1090,7 +1124,7 @@ function cee_with_lips_rib(H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pi
 
 
     #gather up everything 
-    properties = CeeLipsRib(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = CeeLipsRib(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
@@ -1257,13 +1291,15 @@ end
 
 
 
-function hat_with_lips_rib(H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function hat_with_lips_rib(section_inputs)
+
+    @unpack member_type, section_type, H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     D = D1 + D2 + D3
 
-    input = HatLipsRibInput(H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    # input = HatLipsRibInput(H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    geometry = RackSections.hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    geometry = hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
 
@@ -1401,7 +1437,7 @@ function hat_with_lips_rib(H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_
 
 
     #gather up everything 
-    properties = HatLipsRib(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D1, Lnp_D2, tg_H, tg_D1, tg_D2, tg, td_H, td_D1, td_D2, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, distortional_buckling_Myy_pos, Mcrd_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = HatLipsRib(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D1, Lnp_D2, tg_H, tg_D1, tg_D2, tg, td_H, td_D1, td_D2, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, distortional_buckling_Myy_pos, Mcrd_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
@@ -1565,13 +1601,17 @@ end
 
 
 
-function hat_with_rib(H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function hat_with_rib(section_inputs)
+
+
+    @unpack member_type, section_type, H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     D = D1 + D2 + D3
 
-    input = HatRibInput(H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    # input = HatRibInput(H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    geometry = RackSections.hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+
+    geometry = hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
 
@@ -1709,7 +1749,7 @@ function hat_with_rib(H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H
 
 
     #gather up everything 
-    properties = HatRib(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D1, Lnp_D2, tg_H, tg_D1, tg_D2, tg, td_H, td_D1, td_D2, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, distortional_buckling_Myy_pos, Mcrd_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = HatRib(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D1, Lnp_D2, tg_H, tg_D1, tg_D2, tg, td_H, td_D1, td_D2, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, distortional_buckling_Myy_pos, Mcrd_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
@@ -1879,11 +1919,14 @@ end
 
 
 
-function hat_with_lips_trapezoidal_rib(H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr)
+function hat_with_lips_trapezoidal_rib(section_inputs)
+
+
+    @unpack member_type, section_type, H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr = section_inputs
 
     D = D1 + D2 + D3
 
-    input = HatLipsTrapezoidalRibInput(H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr)
+    # input = HatLipsTrapezoidalRibInput(H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr)
 
     geometry = hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, hr, wr, Rr)
     #gross section properties 
@@ -2023,7 +2066,7 @@ function hat_with_lips_trapezoidal_rib(H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_
 
 
     #gather up everything 
-    properties = HatLipsTrapezoidalRib(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D1, Lnp_D2, tg_H, tg_D1, tg_D2, tg, td_H, td_D1, td_D2, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, distortional_buckling_Myy_pos, Mcrd_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = HatLipsTrapezoidalRib(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D1, Lnp_D2, tg_H, tg_D1, tg_D2, tg, td_H, td_D1, td_D2, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, distortional_buckling_Myy_pos, Mcrd_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
@@ -2133,11 +2176,13 @@ end
 
 
 
-function unistrut_in(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function unistrut_in(section_inputs)
 
-    input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    # input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    geometry = RackSections.unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    @unpack member_type, section_type, H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+
+    geometry = unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -2271,7 +2316,7 @@ function unistrut_in(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pit
 
 
     #gather up everything 
-    properties = UniStrut(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = UniStrut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
@@ -2284,14 +2329,22 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
 
     θ_rib = atan(rib_depth/(rib_length/4))
 
-    segments = [L2, L1, D, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D, L1, L2]
+    # segments = [L2, L1, D, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D, L1, L2]
+
+    # θ = [0.0, -π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, -π/2, π]
+    # r = [R, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R]
+    # n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
+    # n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3]
+
+    segments = [L2, L1, D - t, H/2 - t -rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2 - t - rib_length/2 + rib_length/4, D - t, L1, L2]
 
     θ = [0.0, -π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, -π/2, π]
-    r = [R, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R]
+    r = [R, R, R-t, rib_radius_start, rib_radius_peak, rib_radius_start, R-t, R, R]
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
     n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H+2*L1))
+
+    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to right", offset = (D-L2, H+2*L1 - 2*t))
 
     x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
     y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
@@ -2299,9 +2352,9 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
     nodes = [x y zeros(Float64, length(x))]
 
     #flange hole minus
-    D_flat_minus = segments[8] - 2*R 
+    D_flat_minus = segments[8] + t/2 - 2*R 
     xloc = t/2 + (R-t/2) + D_flat_minus/n[8] * 1.5
-    yloc = t/2
+    yloc = L1 - t/2
     zloc = 0.0
     atol_x = D_flat_minus/n[8] * 0.55
     atol_y = 0.0
@@ -2314,9 +2367,9 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
     x[hole_node_index[2]] = de_D + dh_D/2
 
     #flange hole plus
-    D_flat_plus = segments[3] - 2*R 
+    D_flat_plus = segments[3] + t/2 - 2*R 
     xloc = t/2 + (R-t/2) + D_flat_plus/n[3] * 1.5
-    yloc = H - t/2
+    yloc = L1 - t + H - t/2
     zloc = 0.0
     atol_x = D_flat_plus/n[3] * 0.55
     atol_y = 0.0
@@ -2344,7 +2397,7 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
 
     xloc = t/2
     H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 + centerline_rib_length/2 + H_flat_from_rib/n[4] * 1.5
+    yloc = H/2 + (L1 - t) + centerline_rib_length/2 + H_flat_from_rib/n[4] * 1.5
     zloc = 0.0
     atol_x = 0.0
     atol_y = H_flat_from_rib/n[4] * 0.55
@@ -2359,7 +2412,7 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
 
     #web hole minus
     xloc = t/2
-    yloc = H/2 - centerline_rib_length/2 - H_flat_from_rib/n[4] * 1.5
+    yloc = H/2 + (L1 - t) - centerline_rib_length/2 - H_flat_from_rib/n[4] * 1.5
     zloc = 0.0
     atol_x = 0.0
     atol_y = H_flat/n[4] * 0.55
@@ -2382,11 +2435,13 @@ end
 
 
 
-function unistrut_out(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function unistrut_out(section_inputs)
 
-    input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    # input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    geometry = RackSections.unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    @unpack member_type, section_type, H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+
+    geometry = unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -2520,7 +2575,7 @@ function unistrut_out(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pi
 
 
     #gather up everything 
-    properties = UniStrut(input, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = UniStrut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
