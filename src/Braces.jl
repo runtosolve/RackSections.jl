@@ -2,8 +2,43 @@ module Braces
 
 using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
 
+
+
+@with_kw struct CeeLipsBraceInput
+
+    member_type::String
+    section_type::String
+    H::Float64
+    D::Float64
+    L::Float64
+    R::Float64
+    t::Float64
+    E::Float64
+    ν::Float64
+
+end
+
+
+
+@with_kw struct CeeLipsBrace
+
+    input::CeeLipsBraceInput
+    geometry::NamedTuple{(:coordinates, :x, :y)}
+    properties::CUFSM.SectionPropertiesObject
+    local_buckling_P::CUFSM.Model
+    Pcrℓ::Float64
+    distortional_buckling_P::CUFSM.Model
+    Pcrd::Float64
+
+end
+
+
+
+
 @with_kw struct CeeInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     R::Float64
@@ -26,6 +61,8 @@ end
 
 @with_kw struct AngleInput
 
+    member_type::String
+    section_type::String
     D::Float64
     H::Float64
     R::Float64
@@ -47,6 +84,8 @@ end
 
 @with_kw struct PipeInput
 
+    member_type::String
+    section_type::String
     D::Float64
     t::Float64
     E::Float64
@@ -63,6 +102,31 @@ end
     Pcrℓ::Float64
 
 end
+
+
+@with_kw struct RectangularTubeBraceInput
+
+    member_type::String
+    section_type::String
+    H::Float64
+    D::Float64
+    R::Float64
+    t::Float64
+    E::Float64
+    ν::Float64
+
+end
+
+@with_kw struct RectangularTubeBrace
+
+    input::RectangularTubeBraceInput
+    geometry::NamedTuple{(:coordinates, :x, :y)}
+    properties::CUFSM.SectionPropertiesObject
+    local_buckling_P::CUFSM.Model
+    Pcrℓ::Float64
+
+end
+
 
 
 
@@ -88,11 +152,13 @@ end
 
 
 
-function cee(H, D, R, t, E, ν)
+function cee(input)
 
-    input = CeeInput(H, D, R, t, E, ν)
+    @unpack member_type, section_type, H, D, R, t, E, ν = input
 
-    geometry = RackSections.cee_geometry(H, D, R, t)
+    # input = CeeInput(H, D, R, t, E, ν)
+
+    geometry = cee_geometry(H, D, R, t)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -155,15 +221,25 @@ function pipe_geometry(D, t)
 end
 
 
-function pipe(D, t, E, ν)
+function pipe(input)
 
-    input = PipeInput(D, t, E, ν)
+    @unpack member_type, section_type, D, t, E, ν = input
 
-    geometry = RackSections.pipe_geometry(D, t)
+    # input = PipeInput(D, t, E, ν)
+
+    geometry = pipe_geometry(D, t)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
 
+    #remove NaNs to allow for writing to JSON
+    gross_section_properties.xs = -1
+    gross_section_properties.ys = -1
+    gross_section_properties.Cw = -1
+    gross_section_properties.B1 = -1
+    gross_section_properties.B2 = -1
+    gross_section_properties.wn = [-1, -1]
+  
 
     #elastic buckling properties 
 
@@ -212,11 +288,12 @@ end
 
 
 
-function angle(H, D, R, t, E, ν)
+function angle(input)
 
-    input = AngleInput(H, D, R, t, E, ν)
+    @unpack member_type, section_type, H, D, R, t, E, ν = input
+    # input = AngleInput(H, D, R, t, E, ν)
 
-    geometry = RackSections.angle_geometry(H, D, R, t)
+    geometry = angle_geometry(H, D, R, t)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -271,13 +348,15 @@ end
 
 
 
-function cee_with_lips_brace(H, D, L, R, t, E, ν)
+function cee_with_lips_brace(inputs)
 
     # @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
-    section_inputs = CeeLipsBraceInput(H, D, L, R, t, E, ν)
+    @unpack member_type, section_type, H, D, L, R, t, E, ν = inputs
 
-    geometry = RackSections.cee_with_lips_brace_geometry(H, D, L, R, t)
+    # section_inputs = CeeLipsBraceInput(H, D, L, R, t, E, ν)
+
+    geometry = cee_with_lips_brace_geometry(H, D, L, R, t)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
@@ -336,11 +415,83 @@ function cee_with_lips_brace(H, D, L, R, t, E, ν)
 
 
     #gather up everything 
-    properties = CeeLipsBrace(section_inputs, geometry, gross_section_properties, local_buckling_P, Pcrℓ, distortional_buckling_P, Pcrd)
+    properties = CeeLipsBrace(inputs, geometry, gross_section_properties, local_buckling_P, Pcrℓ, distortional_buckling_P, Pcrd)
 
     return properties 
 
 end
+
+
+
+
+function rectangular_tube_brace_geometry(H, D, R, t)
+
+
+    segments = [H, D, H, D]
+    θ = [π/2, π, -π/2, 0.0]
+    r = [R, R, R, R]
+    n = [4, 4, 5, 4]
+    n_r = [3, 3, 3, 3]
+
+    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
+
+    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
+    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+
+    geometry = (coordinates = section_geometry, x=x, y=y)
+
+    return geometry
+
+end
+
+
+
+function rectangular_tube_brace(section_inputs)
+
+    @unpack member_type, section_type, H, D, R, t, E, ν = section_inputs
+
+
+    geometry = rectangular_tube_brace_geometry(H, D, R, t)
+
+    #gross section properties 
+    gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+
+    #remove NaNs to allow for writing to JSON
+    gross_section_properties.xs = -1
+    gross_section_properties.ys = -1
+    gross_section_properties.Cw = -1
+    gross_section_properties.B1 = -1
+    gross_section_properties.B2 = -1
+    gross_section_properties.wn = [-1, -1]
+
+    
+
+    #local buckling, compression
+    P = 1.0
+    Mxx = 0.0
+    Myy = 0.0
+    M11 = 0.0
+    M22 = 0.0
+    constraints = []
+    springs = []
+    neigs = 1
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    local_buckling_P = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
+    eig = 1
+    Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
+
+    
+    #gather up everything 
+    properties = RectangularTubeBrace(section_inputs, geometry, gross_section_properties, local_buckling_P, Pcrℓ)
+
+    return properties 
+
+end
+
+
+
+
+
 
 end #module
 

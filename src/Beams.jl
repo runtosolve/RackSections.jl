@@ -4,6 +4,8 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 @with_kw struct StepBeamInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     W::Float64
@@ -36,6 +38,8 @@ end
 
 @with_kw struct AngledStepBeamInput
 
+    member_type::String
+    section_type::String
     H::Float64
     D::Float64
     W::Float64
@@ -90,16 +94,25 @@ end
 
 
 
-function step_beam(H, D, W, L, R, t, E, ν)
+function step_beam(input)
 
-    input = StepBeamInput(H, D, W, L, R, t, E, ν)
+    # input = StepBeamInput(H, D, W, L, R, t, E, ν)
+
+    @unpack member_type, section_type, H, D, W, L, R, t, E, ν = input
 
     geometry = step_beam_geometry(H, D, W, L, R, t)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
 
-    
+    #remove NaNs to allow for writing to JSON
+    gross_section_properties.xs = -1
+    gross_section_properties.ys = -1
+    gross_section_properties.Cw = -1
+    gross_section_properties.B1 = -1
+    gross_section_properties.B2 = -1
+    gross_section_properties.wn = [-1, -1]
+
     #local buckling, compression
     P = 1.0
     Mxx = 0.0
@@ -201,14 +214,24 @@ end
 
 
 
-function angled_step_beam(H, D, W, L, A, R, t, E, ν)
+function angled_step_beam(input)
 
-    input = AngledStepBeamInput(H, D, W, L, A, R, t, E, ν)
+    @unpack member_type, section_type, H, D, W, L, A, R, t, E, ν = input
+
+    # input = AngledStepBeamInput(H, D, W, L, A, R, t, E, ν)
 
     geometry = angled_step_beam_geometry(H, D, W, L, A, R, t)
 
     #gross section properties 
     gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+
+    #remove NaNs to allow for writing to JSON
+    gross_section_properties.xs = -1
+    gross_section_properties.ys = -1
+    gross_section_properties.Cw = -1
+    gross_section_properties.B1 = -1
+    gross_section_properties.B2 = -1
+    gross_section_properties.wn = [-1, -1]
 
     
     #local buckling, compression

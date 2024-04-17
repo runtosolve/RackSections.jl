@@ -114,38 +114,6 @@ end
 end
 
 
-
-
-
-@with_kw struct CeeLipsBraceInput
-
-    member_type::String
-    section_type::String
-    H::Float64
-    D::Float64
-    L::Float64
-    R::Float64
-    t::Float64
-    E::Float64
-    ν::Float64
-
-end
-
-
-
-@with_kw struct CeeLipsBrace
-
-    input::CeeLipsBraceInput
-    geometry::NamedTuple{(:coordinates, :x, :y)}
-    properties::CUFSM.SectionPropertiesObject
-    local_buckling_P::CUFSM.Model
-    Pcrℓ::Float64
-    distortional_buckling_P::CUFSM.Model
-    Pcrd::Float64
-
-end
-
-
 @with_kw struct RectangularTubeInput
 
     member_type::String
