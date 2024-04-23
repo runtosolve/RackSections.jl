@@ -23,7 +23,7 @@ end
 @with_kw struct CeeLipsBrace
 
     input::CeeLipsBraceInput
-    geometry::NamedTuple{(:coordinates, :x, :y)}
+    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64

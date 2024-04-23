@@ -28,7 +28,7 @@ end
 @with_kw struct CeeLips
 
     input::CeeLipsInput
-    geometry::NamedTuple{(:coordinates, :x, :y, :D_hole_element_index, :H_hole_element_index), Tuple{NamedTuple{(:center, :left, :right), Tuple{Vector{Tuple{Float64, Float64}}, Vector{Tuple{Float64, Float64}}, Vector{Tuple{Float64, Float64}}}}, Vector{Float64}, Vector{Float64}, Vector{Int64}, Vector{Int64}}}
+    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
