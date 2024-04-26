@@ -56,7 +56,7 @@ end
 @with_kw struct AngledStepBeam
 
     input::AngledStepBeamInput
-    geometry::NamedTuple{(:coordinates, :x, :y), Tuple{NamedTuple{(:center, :left, :right), Tuple{Vector{Tuple{Float64, Float64}}, Vector{Tuple{Float64, Float64}}, Vector{Tuple{Float64, Float64}}}}, Vector{Float64}, Vector{Float64}}}
+    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
