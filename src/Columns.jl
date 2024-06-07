@@ -4,8 +4,6 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 @with_kw struct CeeLipsInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     L::Float64
@@ -58,8 +56,6 @@ end
 
 @with_kw struct CeeLipsRibInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     L::Float64
@@ -116,8 +112,6 @@ end
 
 @with_kw struct RectangularTubeInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     R::Float64
@@ -159,8 +153,6 @@ end
 
 @with_kw struct HatLipsRibInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D1::Float64
     D2::Float64
@@ -227,8 +219,6 @@ end
 
 @with_kw struct HatRibInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D1::Float64
     D2::Float64
@@ -294,8 +284,6 @@ end
 
 @with_kw struct HatLipsTrapezoidalRibInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D1::Float64
     D2::Float64
@@ -364,8 +352,6 @@ end
 
 @with_kw struct UniStrutInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     L1::Float64
@@ -422,7 +408,7 @@ end
 
 function cee_with_lips(section_inputs)
 
-    @unpack member_type, section_type, H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+    @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
     geometry = cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
 
@@ -743,7 +729,7 @@ end
 
 function rectangular_tube(section_inputs)
 
-    @unpack member_type, section_type, H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+    @unpack H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
     # input = RectangularTubeInput(H, D, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D)
 
@@ -954,7 +940,7 @@ end
 
 function cee_with_lips_rib(section_inputs)
 
-    @unpack member_type, section_type, H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+    @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     # input = CeeLipsRibInput(H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
@@ -1261,7 +1247,7 @@ end
 
 function hat_with_lips_rib(section_inputs)
 
-    @unpack member_type, section_type, H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+    @unpack H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     D = D1 + D2 + D3
 
@@ -1572,7 +1558,7 @@ end
 function hat_with_rib(section_inputs)
 
 
-    @unpack member_type, section_type, H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+    @unpack H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     D = D1 + D2 + D3
 
@@ -1890,7 +1876,7 @@ end
 function hat_with_lips_trapezoidal_rib(section_inputs)
 
 
-    @unpack member_type, section_type, H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr = section_inputs
+    @unpack H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr = section_inputs
 
     D = D1 + D2 + D3
 
@@ -2148,7 +2134,7 @@ function unistrut_in(section_inputs)
 
     # input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    @unpack member_type, section_type, H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+    @unpack H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     geometry = unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
@@ -2407,7 +2393,7 @@ function unistrut_out(section_inputs)
 
     # input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    @unpack member_type, section_type, H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
+    @unpack H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak = section_inputs
 
     geometry = unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 

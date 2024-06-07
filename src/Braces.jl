@@ -6,8 +6,6 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 @with_kw struct CeeLipsBraceInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     L::Float64
@@ -37,8 +35,6 @@ end
 
 @with_kw struct CeeInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     R::Float64
@@ -61,8 +57,6 @@ end
 
 @with_kw struct AngleInput
 
-    member_type::String
-    section_type::String
     D::Float64
     H::Float64
     R::Float64
@@ -84,8 +78,6 @@ end
 
 @with_kw struct PipeInput
 
-    member_type::String
-    section_type::String
     D::Float64
     t::Float64
     E::Float64
@@ -106,8 +98,6 @@ end
 
 @with_kw struct RectangularTubeBraceInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     R::Float64
@@ -154,7 +144,7 @@ end
 
 function cee(input)
 
-    @unpack member_type, section_type, H, D, R, t, E, ν = input
+    @unpack H, D, R, t, E, ν = input
 
     # input = CeeInput(H, D, R, t, E, ν)
 
@@ -223,7 +213,7 @@ end
 
 function pipe(input)
 
-    @unpack member_type, section_type, D, t, E, ν = input
+    @unpack D, t, E, ν = input
 
     # input = PipeInput(D, t, E, ν)
 
@@ -290,7 +280,7 @@ end
 
 function angle(input)
 
-    @unpack member_type, section_type, H, D, R, t, E, ν = input
+    @unpack H, D, R, t, E, ν = input
     # input = AngleInput(H, D, R, t, E, ν)
 
     geometry = angle_geometry(H, D, R, t)
@@ -352,7 +342,7 @@ function cee_with_lips_brace(inputs)
 
     # @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
-    @unpack member_type, section_type, H, D, L, R, t, E, ν = inputs
+    @unpack H, D, L, R, t, E, ν = inputs
 
     # section_inputs = CeeLipsBraceInput(H, D, L, R, t, E, ν)
 
@@ -448,7 +438,7 @@ end
 
 function rectangular_tube_brace(section_inputs)
 
-    @unpack member_type, section_type, H, D, R, t, E, ν = section_inputs
+    @unpack H, D, R, t, E, ν = section_inputs
 
 
     geometry = rectangular_tube_brace_geometry(H, D, R, t)

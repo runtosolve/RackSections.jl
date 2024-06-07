@@ -4,8 +4,6 @@ using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAl
 
 @with_kw struct StepBeamInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     W::Float64
@@ -38,8 +36,6 @@ end
 
 @with_kw struct AngledStepBeamInput
 
-    member_type::String
-    section_type::String
     H::Float64
     D::Float64
     W::Float64
@@ -98,7 +94,7 @@ function step_beam(input)
 
     # input = StepBeamInput(H, D, W, L, R, t, E, ν)
 
-    @unpack member_type, section_type, H, D, W, L, R, t, E, ν = input
+    @unpack H, D, W, L, R, t, E, ν = input
 
     geometry = step_beam_geometry(H, D, W, L, R, t)
 
@@ -216,7 +212,7 @@ end
 
 function angled_step_beam(input)
 
-    @unpack member_type, section_type, H, D, W, L, A, R, t, E, ν = input
+    @unpack H, D, W, L, A, R, t, E, ν = input
 
     # input = AngledStepBeamInput(H, D, W, L, A, R, t, E, ν)
 
