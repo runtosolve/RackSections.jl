@@ -126,7 +126,7 @@ function cee_geometry(H, D, R, t)
     θ = [π, -π/2, 0.0]
     r = [R, R]
     n = [4, 4, 4]
-    n_r = [3, 3]
+    n_r = [5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H))
 
@@ -262,7 +262,7 @@ function angle_geometry(H, D, R, t)
     θ = [-π/2, 0.0]
     r = [R]
     n = [4, 4]
-    n_r = [3]
+    n_r = [5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (0.0, H))
 
@@ -322,7 +322,7 @@ function cee_with_lips_brace_geometry(H, D, L, R, t)
     θ = [π/2, π, -π/2, 0.0, π/2]
     r = [R, R, R, R]
     n = [4, 4, 5, 4, 4]
-    n_r = [3, 3, 3, 3]
+    n_r = [5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
 
@@ -421,7 +421,7 @@ function rectangular_tube_brace_geometry(H, D, R, t)
     θ = [π/2, π, -π/2, 0.0]
     r = [R, R, R, R]
     n = [4, 4, 5, 4]
-    n_r = [3, 3, 3, 3]
+    n_r = [5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 

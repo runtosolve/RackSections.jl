@@ -74,7 +74,8 @@ function step_beam_geometry(H, D, W, L, R, t)
     θ = [π/2, π, π/2,π, -π/2, 0.0]
     r = [R, R-t, R, R, R, R]
     n = [4, 4, 4, 4, 4, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3]
+    # n_r = [3, 3, 3, 3, 3, 3, 3]
+    n_r = [5, 5, 5, 5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 
@@ -194,7 +195,7 @@ function angled_step_beam_geometry(H, D, W, L, A, R, t)
     θ = [π/2, π, A, π, -π/2, 0.0]
     r = [R, R-t, R, R, R, R]
     n = [4, 4, 4, 4, 4, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3]
+    n_r = [5, 5, 5, 5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 

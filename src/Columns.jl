@@ -555,7 +555,7 @@ function cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
     θ = [π/2, π, -π/2, 0.0, π/2]
     r = [R, R, R, R]
     n = [4, 4, 5, 4, 4]
-    n_r = [3, 3, 3, 3]
+    n_r = [3, 3, 3, 3] .* 3
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
 
@@ -645,7 +645,7 @@ function rectangular_tube_geometry(H, D, R, t, dh_H, dh_D, de_H, de_D)
     θ = [π/2, π, -π/2, 0.0]
     r = [R, R, R, R]
     n = [4, 4, 5, 4]
-    n_r = [3, 3, 3, 3]
+    n_r = [9, 9, 9, 9]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 
@@ -843,7 +843,7 @@ function cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_d
     θ = [π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π/2]
     r = [R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R]
     n = [4, 4, 3, 4, 4, 3, 4, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3]
+    n_r = [3, 3, 3, 3, 3, 3, 3] .* 3
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
 
@@ -1102,7 +1102,7 @@ function hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, d
     θ = [-π/2, π, A, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π-A, 0.0, -π/2]
     r = [R-t, R-t, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R-t, R-t]
     n = [4, 3, 4, 3, 3, 4, 4, 3, 3, 4, 3, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] .* 3
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-t, H - (X - L)))
 
@@ -1413,7 +1413,7 @@ function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de
     θ = [π, A, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π-A, 0.0]
     r = [R-t, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R-t]
     n = [3, 4, 3, 3, 4, 4, 3, 3, 4, 3]
-    n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3]
+    n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H - (X-t)))
 
@@ -1731,7 +1731,7 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
     θ = [-π/2, π, A1, π, -π/2, -π/2 + Δ2, -π/2, -π/2 - Δ2, -π/2, 0.0, π-A1, 0.0, -π/2]
     r = [R-t, R-t, R, R, Rr, Rr-t, Rr-t, Rr, R, R, R-t, R-t]
     n = [4, 3, 4, 3, 3, 4, 4, 4, 3, 3, 4, 3, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-t, H - (X-L)))
 
@@ -2037,7 +2037,7 @@ function unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_de
     θ = [0.0, π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π/2, π]
     r = [R, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R]
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3]
+    n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
     section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H-L1))
 
@@ -2283,22 +2283,14 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
 
     θ_rib = atan(rib_depth/(rib_length/4))
 
-    # segments = [L2, L1, D, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D, L1, L2]
-
-    # θ = [0.0, -π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, -π/2, π]
-    # r = [R, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R]
-    # n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
-    # n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3]
-
-    segments = [L2, L1, D - t, H/2 - t -rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2 - t - rib_length/2 + rib_length/4, D - t, L1, L2]
+    segments = [L2-t, L1 - 2*t, D-t, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D-t, L1-2*t, L2 -t]
 
     θ = [0.0, -π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, -π/2, π]
-    r = [R, R, R-t, rib_radius_start, rib_radius_peak, rib_radius_start, R-t, R, R]
+    r = [R-t, R-t, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R-t, R-t]
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
-    n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3]
+    n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
-
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to right", offset = (D-L2, H+2*L1 - 2*t))
+    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H/2 - t + (L1 - t)))   
 
     x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
     y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
@@ -2306,9 +2298,9 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
     nodes = [x y zeros(Float64, length(x))]
 
     #flange hole minus
-    D_flat_minus = segments[8] + t/2 - 2*R 
-    xloc = t/2 + (R-t/2) + D_flat_minus/n[8] * 1.5
-    yloc = L1 - t/2
+    D_flat_minus = segments[8] - (R-t) - (R-t) 
+    xloc = R + D_flat_minus/n[8] * 1.5
+    yloc = -H/2 + t/2
     zloc = 0.0
     atol_x = D_flat_minus/n[8] * 0.55
     atol_y = 0.0
@@ -2321,9 +2313,9 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
     x[hole_node_index[2]] = de_D + dh_D/2
 
     #flange hole plus
-    D_flat_plus = segments[3] + t/2 - 2*R 
-    xloc = t/2 + (R-t/2) + D_flat_plus/n[3] * 1.5
-    yloc = L1 - t + H - t/2
+    D_flat_plus = segments[3] - (R-t) - (R-t) 
+    xloc = R + D_flat_plus/n[3] * 1.5
+    yloc = H/2 - t/2
     zloc = 0.0
     atol_x = D_flat_plus/n[3] * 0.55
     atol_y = 0.0
@@ -2337,11 +2329,9 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
 
     D_hole_element_index = [hole_element_index_D_plus; hole_element_index_D_minus]
 
+
     #web hole plus
 
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    # H_flat = y[index_start] - y[index_end]
     H_flat = H - 2*R
 
     index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + 1
@@ -2351,7 +2341,7 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
 
     xloc = t/2
     H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 + (L1 - t) + centerline_rib_length/2 + H_flat_from_rib/n[4] * 1.5
+    yloc = centerline_rib_length/2 + H_flat_from_rib/n[4] * 1.5
     zloc = 0.0
     atol_x = 0.0
     atol_y = H_flat_from_rib/n[4] * 0.55
@@ -2360,23 +2350,22 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
     hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
     hole_element_index_H_plus = hole_node_index[2] - 1
 
-    y[hole_node_index[1]] = H - de_H + dh_H/2
-    y[hole_node_index[2]] = H - de_H - dh_H/2
-
+    y[hole_node_index[1]] = H/2 - de_H + dh_H/2
+    y[hole_node_index[2]] = H/2 - de_H - dh_H/2
 
     #web hole minus
     xloc = t/2
-    yloc = H/2 + (L1 - t) - centerline_rib_length/2 - H_flat_from_rib/n[4] * 1.5
+    yloc =  -centerline_rib_length/2 - H_flat_from_rib/n[4] * 1.5
     zloc = 0.0
     atol_x = 0.0
-    atol_y = H_flat/n[4] * 0.55
+    atol_y = H_flat_from_rib/n[4] * 0.55
     atol_z = 0.0 
 
     hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
     hole_element_index_H_minus = hole_node_index[2] - 1
 
-    y[hole_node_index[1]] = de_H + dh_H/2
-    y[hole_node_index[2]] = de_H - dh_H/2
+    y[hole_node_index[1]] = -H/2 + de_H + dh_H/2
+    y[hole_node_index[2]] = -H/2 + de_H - dh_H/2
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
@@ -2490,7 +2479,7 @@ function unistrut_out(section_inputs)
     #find approximate distortional buckling half-wavelength
     CorZ = 0
     b = D
-    d = L1
+    d = L1 + L2
     θ = 90.0
     Af,Jf,Ixf,Iyf,Ixyf,Cwf,xof,hxf,hyf,yof = AISIS100.v16.table23131(CorZ,t,b,d,θ)
 
@@ -2509,7 +2498,8 @@ function unistrut_out(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(1.0*Lcrd, 2.0*Lcrd, 9)
+    # lengths = range(1.0*Lcrd, 2.0*Lcrd, 9)
+    lengths = range(0.5*Lcrd, 6.0*Lcrd, 15)
     distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
 
