@@ -376,7 +376,7 @@ end
 end
 
 
-@with_kw struct UniStrut
+@with_kw struct UniStrutIn
 
     input::UniStrutInput
     geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
@@ -402,6 +402,28 @@ end
     Pcrd::Float64
     distortional_buckling_Mxx::CUFSM.Model
     Mcrd::Float64
+
+end
+
+@with_kw struct UniStrutOut
+
+    input::UniStrutInput
+    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    properties::CUFSM.SectionPropertiesObject
+    net_properties::CUFSM.SectionPropertiesObject
+    Lnp_H::Float64
+    Lnp_D::Float64
+    tg_H::Float64
+    tg_D::Float64
+    tg::Vector{Float64}
+    local_buckling_P::CUFSM.Model
+    Pcrℓ::Float64
+    local_buckling_Mxx::CUFSM.Model
+    Mcrℓ_xx::Float64
+    local_buckling_Myy_neg::CUFSM.Model
+    Mcrℓ_yy_neg::Float64
+    local_buckling_Myy_pos::CUFSM.Model
+    Mcrℓ_yy_pos::Float64 
 
 end
 
@@ -454,7 +476,7 @@ function cee_with_lips(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -468,7 +490,7 @@ function cee_with_lips(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -482,7 +504,7 @@ function cee_with_lips(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -495,7 +517,7 @@ function cee_with_lips(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.25*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
@@ -782,7 +804,7 @@ function rectangular_tube(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -796,7 +818,7 @@ function rectangular_tube(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -809,7 +831,7 @@ function rectangular_tube(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -822,7 +844,7 @@ function rectangular_tube(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.25*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Myy_pos = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
@@ -989,7 +1011,7 @@ function cee_with_lips_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -1003,7 +1025,7 @@ function cee_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -1017,7 +1039,7 @@ function cee_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.5*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.5*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -1030,7 +1052,7 @@ function cee_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.25*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
@@ -1302,7 +1324,7 @@ function hat_with_lips_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -1316,7 +1338,7 @@ function hat_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25*minimum([H, D]), 0.6*minimum([H,D]), 5)
+    lengths = range(0.25*minimum([H, D]), 0.6*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -1330,7 +1352,7 @@ function hat_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(1.0*minimum([H, D]), 2.0*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 2.0*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -1343,7 +1365,7 @@ function hat_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(4.0*minimum([H, D]), 8.0*minimum([H,D]), 5)
+    lengths = range(4.0*minimum([H, D]), 8.0*minimum([H,D]), 7)
     distortional_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Myy_pos, eig))
 
@@ -1614,7 +1636,7 @@ function hat_with_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.75*maximum([H, D]), 1.75*maximum([H,D]), 5)
+    lengths = range(0.75*maximum([H, D]), 1.75*maximum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -1628,7 +1650,7 @@ function hat_with_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -1642,7 +1664,7 @@ function hat_with_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(1.0*minimum([H, D]), 2.0*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 2.0*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -1655,7 +1677,7 @@ function hat_with_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(3.0*minimum([H, D]), 7.0*minimum([H,D]), 5)
+    lengths = range(3.0*minimum([H, D]), 7.0*minimum([H,D]), 7)
     distortional_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Myy_pos, eig))
 
@@ -1931,7 +1953,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.5*maximum([H, D]), 1.8*maximum([H,D]), 5)
+    lengths = range(0.5*maximum([H, D]), 1.8*maximum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -1945,7 +1967,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25*minimum([H, D]), 0.6*minimum([H,D]), 5)
+    lengths = range(0.25*minimum([H, D]), 0.6*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -1959,7 +1981,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(1.0*maximum([H, D]), 2.25*maximum([H,D]), 5)
+    lengths = range(1.0*maximum([H, D]), 2.25*maximum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -1972,7 +1994,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(4.0*minimum([H, D]), 8.0*minimum([H,D]), 5)
+    lengths = range(4.0*minimum([H, D]), 8.0*minimum([H,D]), 7)
     distortional_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Myy_pos, eig))
 
@@ -2000,7 +2022,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*Lcrd, 2.0*Lcrd, 9)
+    lengths = range(0.75*Lcrd, 2.0*Lcrd, 7)
     distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
 
@@ -2014,7 +2036,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*Lcrd, 2.0*Lcrd, 9)
+    lengths = range(0.75*Lcrd, 2.0*Lcrd, 7)
     distortional_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Mxx, eig))
 
@@ -2181,7 +2203,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -2195,7 +2217,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -2209,7 +2231,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.5*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.5*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -2222,7 +2244,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25 * D, 0.75 * D, 5)
+    lengths = range(0.25 * D, 0.75 * D, 7)
     local_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
@@ -2250,7 +2272,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(1.0*Lcrd, 2.0*Lcrd, 9)
+    lengths = range(1.0*Lcrd, 2.0*Lcrd, 7)
     distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
 
@@ -2264,13 +2286,13 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.5*Lcrd, 5.0*Lcrd, 9)
+    lengths = range(0.5*Lcrd, 5.0*Lcrd, 7)
     distortional_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Mxx, eig))
 
 
     #gather up everything 
-    properties = UniStrut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = UniStrutIn(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
 
     return properties 
 
@@ -2399,8 +2421,8 @@ function unistrut_out(section_inputs)
     tg_H = RMI.v2021.eq8_2__1(kg, t, Lnp_H, hole_pitch_H)
     tg_D = RMI.v2021.eq8_2__1(kg, t, Lnp_D, hole_pitch_D)
 
-    td_H = RMI.v2021.eq8_2__2(kd, t, Lnp_H, hole_pitch_H)
-    td_D = RMI.v2021.eq8_2__2(kd, t, Lnp_D, hole_pitch_D)
+    # td_H = RMI.v2021.eq8_2__2(kd, t, Lnp_H, hole_pitch_H)
+    # td_D = RMI.v2021.eq8_2__2(kd, t, Lnp_D, hole_pitch_D)
 
     #define cross-section element thicknesses
     num_elem = length(geometry.x) - 1
@@ -2408,9 +2430,9 @@ function unistrut_out(section_inputs)
     tg[geometry.D_hole_element_index] .= tg_D
     tg[geometry.H_hole_element_index] .= tg_H
 
-    td = fill(t, num_elem)
-    td[geometry.D_hole_element_index] .= td_D
-    td[geometry.H_hole_element_index] .= td_H
+    # td = fill(t, num_elem)
+    # td[geometry.D_hole_element_index] .= td_D
+    # td[geometry.H_hole_element_index] .= td_H
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
@@ -2429,7 +2451,7 @@ function unistrut_out(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 2.0*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -2443,7 +2465,7 @@ function unistrut_out(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -2457,7 +2479,7 @@ function unistrut_out(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.5*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 2.0*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -2470,56 +2492,59 @@ function unistrut_out(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.25 * D, 0.75 * D, 5)
+    lengths = range(0.25 * D, 0.75 * D, 7)
     local_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
     #distortional buckling 
 
-    #find approximate distortional buckling half-wavelength
-    CorZ = 0
-    b = D
-    d = L1 + L2
-    θ = 90.0
-    Af,Jf,Ixf,Iyf,Ixyf,Cwf,xof,hxf,hyf,yof = AISIS100.v16.table23131(CorZ,t,b,d,θ)
+    # #find approximate distortional buckling half-wavelength
+    # CorZ = 0
+    # b = D
+    # d = L1 + L2
+    # θ = 90.0
+    # Af,Jf,Ixf,Iyf,Ixyf,Cwf,xof,hxf,hyf,yof = AISIS100.v16.table23131(CorZ,t,b,d,θ)
 
-    ho = H
-    μ = ν
-    Lm = 999999999.0
-    Lcrd, not_used = AISIS100.v16.app23334(ho, μ, t, Ixf, xof, hxf, Cwf, Ixyf, Iyf, Lm)
-
-
-    #distortional buckling, compression 
-    P = 1.0
-    Mxx = 0.0
-    Myy = 0.0
-    M11 = 0.0
-    M22 = 0.0
-    constraints = []
-    springs = []
-
-    # lengths = range(1.0*Lcrd, 2.0*Lcrd, 9)
-    lengths = range(0.5*Lcrd, 6.0*Lcrd, 15)
-    distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
-    Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
+    # ho = H
+    # μ = ν
+    # Lm = 999999999.0
+    # Lcrd, not_used = AISIS100.v16.app23334(ho, μ, t, Ixf, xof, hxf, Cwf, Ixyf, Iyf, Lm)
 
 
-    #distortional buckling, Mxx
-    P = 0.0
-    Mxx = 1.0
-    Myy = 0.0
-    M11 = 0.0
-    M22 = 0.0
-    constraints = []
-    springs = []
+    # #distortional buckling, compression 
+    # P = 1.0
+    # Mxx = 0.0
+    # Myy = 0.0
+    # M11 = 0.0
+    # M22 = 0.0
+    # constraints = []
+    # springs = []
 
-    lengths = range(0.5*Lcrd, 5.0*Lcrd, 9)
-    distortional_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
-    Mcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Mxx, eig))
+    # # lengths = range(1.0*Lcrd, 2.0*Lcrd, 9)
+    # lengths = range(0.5*Lcrd, 6.0*Lcrd, 15)
+    # distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
+    # Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
+
+
+    # #distortional buckling, Mxx
+    # P = 0.0
+    # Mxx = 1.0
+    # Myy = 0.0
+    # M11 = 0.0
+    # M22 = 0.0
+    # constraints = []
+    # springs = []
+
+    # lengths = range(0.5*Lcrd, 5.0*Lcrd, 9)
+    # distortional_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
+    # Mcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Mxx, eig))
 
 
     #gather up everything 
-    properties = UniStrut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    # properties = UniStrut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
+    properties = UniStrutOut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos)
+
+
 
     return properties 
 

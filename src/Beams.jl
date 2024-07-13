@@ -119,7 +119,7 @@ function step_beam(input)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.5*H, 1.25*H, 5)
+    lengths = range(0.5*H, 1.25*H, 7)
     local_buckling_P = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -133,7 +133,7 @@ function step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.25*H, 1.0*H, 5)
+    lengths = range(0.25*H, 1.0*H, 7)
     local_buckling_Mxx_pos = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_xx_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx_pos, eig))
 
@@ -146,7 +146,7 @@ function step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.25*H, 1.0*H, 5)
+    lengths = range(0.25*H, 1.0*H, 7)
     local_buckling_Mxx_neg = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_xx_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx_neg, eig))
     
@@ -160,7 +160,7 @@ function step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.5*H, 1.0*H, 5)
+    lengths = range(0.5*H, 1.0*H, 7)
     local_buckling_Myy_neg = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -173,7 +173,7 @@ function step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.5*(H-L), 1.0*(H-L), 5)
+    lengths = range(0.5*(H-L), 1.0*(H-L), 7)
     local_buckling_Myy_pos = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 
@@ -240,7 +240,7 @@ function angled_step_beam(input)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.5*H, 1.25*H, 5)
+    lengths = range(0.5*H, 1.25*H, 7)
     local_buckling_P = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -254,7 +254,7 @@ function angled_step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.25*H, 1.0*H, 5)
+    lengths = range(0.25*H, 1.0*H, 7)
     local_buckling_Mxx_pos = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_xx_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx_pos, eig))
 
@@ -267,7 +267,7 @@ function angled_step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.25*H, 1.0*H, 5)
+    lengths = range(0.25*H, 1.0*H, 7)
     local_buckling_Mxx_neg = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_xx_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx_neg, eig))
     
@@ -281,7 +281,7 @@ function angled_step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.5*H, 1.0*H, 5)
+    lengths = range(0.5*H, 1.0*H, 7)
     local_buckling_Myy_neg = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -294,7 +294,7 @@ function angled_step_beam(input)
     constraints = []
     springs = []
 
-    lengths = range(0.5*(H-L), 1.0*(H-L), 5)
+    lengths = range(0.5*(H-L), 1.0*(H-L), 7)
     local_buckling_Myy_pos = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     Mcrℓ_yy_pos  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_pos, eig))
 

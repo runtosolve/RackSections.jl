@@ -57,8 +57,8 @@ end
 
 @with_kw struct AngleInput
 
-    D::Float64
     H::Float64
+    D::Float64
     R::Float64
     t::Float64
     E::Float64
@@ -165,7 +165,7 @@ function cee(input)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 3.0*minimum([H,D]), 5)
+    lengths = range(1.0*minimum([H, D]), 3.0*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)-1), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -242,7 +242,7 @@ function pipe(input)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(2.0*D, 4.0*D, 5)
+    lengths = range(2.0*D, 4.0*D, 7)
     local_buckling_P = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     
     eig = 1
@@ -300,7 +300,7 @@ function angle(input)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(3.0*minimum([H, D]), 8.0*minimum([H,D]), 5)
+    lengths = range(3.0*minimum([H, D]), 15.0*minimum([H,D]), 13)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)-1), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -366,7 +366,7 @@ function cee_with_lips_brace(inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.75*minimum([H, D]), 1.3*minimum([H,D]), 10)
+    lengths = range(0.75*minimum([H, D]), 2.0*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -399,7 +399,7 @@ function cee_with_lips_brace(inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*Lcrd, 1.5*Lcrd, 9)
+    lengths = range(0.75*Lcrd, 1.5*Lcrd, 7)
     distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
 
@@ -465,7 +465,7 @@ function rectangular_tube_brace(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 5)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.closed_section_analysis(geometry.x, geometry.y, fill(t, length(geometry.x)), lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
