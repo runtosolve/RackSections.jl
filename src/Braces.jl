@@ -1,6 +1,6 @@
 module Braces
 
-using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
+using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
 
 
 
@@ -21,7 +21,7 @@ end
 @with_kw struct CeeLipsBrace
 
     input::CeeLipsBraceInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -47,7 +47,7 @@ end
 @with_kw struct Cee
 
     input::CeeInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -69,7 +69,7 @@ end
 @with_kw struct Angle
 
     input::AngleInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -88,7 +88,7 @@ end
 @with_kw struct Pipe
 
     input::PipeInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -110,7 +110,7 @@ end
 @with_kw struct RectangularTubeBrace
 
     input::RectangularTubeBraceInput
-    geometry::NamedTuple{(:coordinates, :x, :y)}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -128,10 +128,10 @@ function cee_geometry(H, D, R, t)
     n = [4, 4, 4]
     n_r = [5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -151,7 +151,7 @@ function cee(input)
     geometry = cee_geometry(H, D, R, t)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
 
     #elastic buckling properties 
@@ -180,7 +180,7 @@ end
 
 
 
-function pipe_geometry(D, t)
+function pipe_geometry(D, t, num_segments)
 
     # num_segments = 100
     # circumference = 2*π*D/2
@@ -189,7 +189,7 @@ function pipe_geometry(D, t)
     # n = ones(Int, num_segments-1)
 
 
-    num_segments = 100
+    # num_segments = 100
     θc = range(0, 2π, num_segments)
     x = D/2 * cos.(θc)
     y = D/2 * sin.(θc)
@@ -199,10 +199,10 @@ function pipe_geometry(D, t)
     θ = [atan((y[i+1]-y[i]), (x[i+1]-x[i])) for i=1:length(x)-1]
     n = ones(Int, num_segments-1)
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, t, centerline = "to left", offset = (D, D/2))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, t, centerline = "to left", offset = (D, D/2))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -217,10 +217,10 @@ function pipe(input)
 
     # input = PipeInput(D, t, E, ν)
 
-    geometry = pipe_geometry(D, t)
+    geometry = pipe_geometry(D, t, 100)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+    gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
     gross_section_properties.xs = -1
@@ -264,10 +264,10 @@ function angle_geometry(H, D, R, t)
     n = [4, 4]
     n_r = [5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (0.0, H))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (0.0, H))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -286,7 +286,7 @@ function angle(input)
     geometry = angle_geometry(H, D, R, t)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
 
     #elastic buckling properties 
@@ -324,10 +324,10 @@ function cee_with_lips_brace_geometry(H, D, L, R, t)
     n = [4, 4, 5, 4, 4]
     n_r = [5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -349,7 +349,7 @@ function cee_with_lips_brace(inputs)
     geometry = cee_with_lips_brace_geometry(H, D, L, R, t)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     num_elem = length(geometry.x) - 1
     tg = fill(t, num_elem)
@@ -423,10 +423,10 @@ function rectangular_tube_brace_geometry(H, D, R, t)
     n = [4, 4, 5, 4]
     n_r = [5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -444,7 +444,7 @@ function rectangular_tube_brace(section_inputs)
     geometry = rectangular_tube_brace_geometry(H, D, R, t)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+    gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
     gross_section_properties.xs = -1

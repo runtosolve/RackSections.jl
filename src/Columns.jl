@@ -1,6 +1,6 @@
 module Columns 
 
-using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
+using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
 
 @with_kw struct CeeLipsInput
 
@@ -26,7 +26,7 @@ end
 @with_kw struct CeeLips
 
     input::CeeLipsInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -83,7 +83,7 @@ end
 @with_kw struct CeeLipsRib
 
     input::CeeLipsRibInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -132,7 +132,7 @@ end
 @with_kw struct RectangularTube
 
     input::RectangularTubeInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -187,7 +187,7 @@ end
 @with_kw struct HatLipsRib
 
     input::HatLipsRibInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -252,7 +252,7 @@ end
 @with_kw struct HatRib
 
     input::HatRibInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -319,7 +319,7 @@ end
 @with_kw struct HatLipsTrapezoidalRib
 
     input::HatLipsTrapezoidalRibInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -379,7 +379,7 @@ end
 @with_kw struct UniStrutIn
 
     input::UniStrutInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -408,7 +408,7 @@ end
 @with_kw struct UniStrutOut
 
     input::UniStrutInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
     properties::CUFSM.SectionPropertiesObject
     net_properties::CUFSM.SectionPropertiesObject
     Lnp_H::Float64
@@ -435,7 +435,7 @@ function cee_with_lips(section_inputs)
     geometry = cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -462,7 +462,7 @@ function cee_with_lips(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
 
 
     #elastic buckling properties 
@@ -579,10 +579,10 @@ function cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
     n = [4, 4, 5, 4, 4]
     n_r = [3, 3, 3, 3] .* 3
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -669,10 +669,10 @@ function rectangular_tube_geometry(H, D, R, t, dh_H, dh_D, de_H, de_D)
     n = [4, 4, 5, 4]
     n_r = [9, 9, 9, 9]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -758,7 +758,7 @@ function rectangular_tube(section_inputs)
     geometry = rectangular_tube_geometry(H, D, R, t, dh_H, dh_D, de_H, de_D)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+    gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
     gross_section_properties.xs = -1
@@ -785,8 +785,8 @@ function rectangular_tube(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.closed_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.closed_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
     net_section_properties.xs = -1
     net_section_properties.ys = -1
@@ -867,13 +867,13 @@ function cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_d
     n = [4, 4, 3, 4, 4, 3, 4, 4]
     n_r = [3, 3, 3, 3, 3, 3, 3] .* 3
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H-L))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
-    # x = [section_geometry.right[i][1] for i in eachindex(section_geometry.center)]
-    # y = [section_geometry.right[i][2] for i in eachindex(section_geometry.center)]
+    # x = [section_geometry.right[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    # y = [section_geometry.right[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -969,7 +969,7 @@ function cee_with_lips_rib(section_inputs)
     geometry = cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -996,8 +996,8 @@ function cee_with_lips_rib(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
 
     #elastic buckling properties 
@@ -1126,10 +1126,10 @@ function hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, d
     n = [4, 3, 4, 3, 3, 4, 4, 3, 3, 4, 3, 4]
     n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] .* 3
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-t, H - (X - L)))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-t, H - (X - L)))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -1277,7 +1277,7 @@ function hat_with_lips_rib(section_inputs)
 
     geometry = hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -1309,8 +1309,8 @@ function hat_with_lips_rib(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
 
     #elastic buckling properties 
@@ -1437,10 +1437,10 @@ function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de
     n = [3, 4, 3, 3, 4, 4, 3, 3, 4, 3]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H - (X-t)))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H - (X-t)))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -1589,7 +1589,7 @@ function hat_with_rib(section_inputs)
 
     geometry = hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -1621,8 +1621,8 @@ function hat_with_rib(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
 
     #elastic buckling properties 
@@ -1755,10 +1755,10 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
     n = [4, 3, 4, 3, 3, 4, 4, 4, 3, 3, 4, 3, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-t, H - (X-L)))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-t, H - (X-L)))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -1906,7 +1906,7 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
 
     geometry = hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, hr, wr, Rr)
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -1938,8 +1938,8 @@ function hat_with_lips_trapezoidal_rib(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
 
     #elastic buckling properties 
@@ -2061,10 +2061,10 @@ function unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_de
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H-L1))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H-L1))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -2161,7 +2161,7 @@ function unistrut_in(section_inputs)
     geometry = unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -2188,8 +2188,8 @@ function unistrut_in(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
 
     #elastic buckling properties 
@@ -2312,10 +2312,10 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_d
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H/2 - t + (L1 - t)))   
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D-L2, H/2 - t + (L1 - t)))   
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     nodes = [x y zeros(Float64, length(x))]
 
@@ -2409,7 +2409,7 @@ function unistrut_out(section_inputs)
     geometry = unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x)-1)) 
+    gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
     #calculate reduced thickness at hole
     Lnp_H = hole_pitch_H - hole_length_H
@@ -2436,8 +2436,8 @@ function unistrut_out(section_inputs)
 
     #net section properties 
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
-    net_section_properties = CrossSection.Properties.open_thin_walled(xy_coords_with_holes, tg) 
-    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.center, tg) 
+    net_section_properties = SectionProperties.open_thin_walled(xy_coords_with_holes, tg) 
+    # net_section_properties = CrossSection.Properties.open_thin_walled(geometry.coordinates.centerline_node_XY, tg) 
 
 
     #elastic buckling properties 

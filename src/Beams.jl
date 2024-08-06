@@ -1,6 +1,6 @@
 module Beams
 
-using CrossSection, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
+using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
 
 @with_kw struct StepBeamInput
 
@@ -19,7 +19,7 @@ end
 @with_kw struct StepBeam
 
     input::StepBeamInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -52,7 +52,7 @@ end
 @with_kw struct AngledStepBeam
 
     input::AngledStepBeamInput
-    geometry::@NamedTuple{coordinates::@NamedTuple{center::Vector{Vector{Float64}}, left::Vector{Vector{Float64}}, right::Vector{Vector{Float64}}}, x::Vector{Float64}, y::Vector{Float64}}
+    geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
     properties::CUFSM.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
@@ -77,10 +77,10 @@ function step_beam_geometry(H, D, W, L, R, t)
     # n_r = [3, 3, 3, 3, 3, 3, 3]
     n_r = [5, 5, 5, 5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -100,7 +100,7 @@ function step_beam(input)
     geometry = step_beam_geometry(H, D, W, L, R, t)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+    gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
     gross_section_properties.xs = -1
@@ -197,10 +197,10 @@ function angled_step_beam_geometry(H, D, W, L, A, R, t)
     n = [4, 4, 4, 4, 4, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5]
 
-    section_geometry = CrossSection.Geometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
+    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, 0.0))
 
-    x = [section_geometry.center[i][1] for i in eachindex(section_geometry.center)]
-    y = [section_geometry.center[i][2] for i in eachindex(section_geometry.center)]
+    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
     geometry = (coordinates = section_geometry, x=x, y=y)
 
@@ -220,7 +220,7 @@ function angled_step_beam(input)
     geometry = angled_step_beam_geometry(H, D, W, L, A, R, t)
 
     #gross section properties 
-    gross_section_properties = CrossSection.Properties.closed_thin_walled(geometry.coordinates.center, fill(t, length(geometry.x))) 
+    gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
     gross_section_properties.xs = -1
