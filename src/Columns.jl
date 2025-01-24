@@ -27,8 +27,8 @@ struct CeeLips
 
     input::CeeLipsInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D::Float64
     tg_H::Float64
@@ -84,8 +84,8 @@ struct CeeLipsRib
 
     input::CeeLipsRibInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D::Float64
     tg_H::Float64
@@ -133,8 +133,8 @@ struct RectangularTube
 
     input::RectangularTubeInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D::Float64
     tg_H::Float64
@@ -188,8 +188,8 @@ struct HatLipsRib
 
     input::HatLipsRibInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D1::Float64
     Lnp_D2::Float64
@@ -253,8 +253,8 @@ struct HatRib
 
     input::HatRibInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D1::Float64
     Lnp_D2::Float64
@@ -320,8 +320,8 @@ struct HatLipsTrapezoidalRib
 
     input::HatLipsTrapezoidalRibInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D1_hole_element_index::Vector{Int64}, D2_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D1::Float64
     Lnp_D2::Float64
@@ -380,8 +380,8 @@ struct UniStrutIn
 
     input::UniStrutInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D::Float64
     tg_H::Float64
@@ -409,8 +409,8 @@ struct UniStrutOut
 
     input::UniStrutInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::CUFSM.SectionPropertiesObject
-    net_properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
+    net_properties::SectionProperties.SectionPropertiesObject
     Lnp_H::Float64
     Lnp_D::Float64
     tg_H::Float64

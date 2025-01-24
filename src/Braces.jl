@@ -22,7 +22,7 @@ struct CeeLipsBrace
 
     input::CeeLipsBraceInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
     distortional_buckling_P::CUFSM.Model
@@ -48,7 +48,7 @@ struct Cee
 
     input::CeeInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
 
@@ -70,7 +70,7 @@ struct Angle
 
     input::AngleInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
 
@@ -89,7 +89,7 @@ struct Pipe
 
     input::PipeInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
 
@@ -111,7 +111,7 @@ struct RectangularTubeBrace
 
     input::RectangularTubeBraceInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::CUFSM.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
 
