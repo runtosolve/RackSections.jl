@@ -144,7 +144,7 @@ end
 
 function cee(input)
 
-     H, D, R, t, E, ν = input
+     (; H, D, R, t, E, ν) = input
 
     # input = CeeInput(H, D, R, t, E, ν)
 
@@ -213,7 +213,7 @@ end
 
 function pipe(input)
 
-     D, t, E, ν = input
+     (; D, t, E, ν) = input
 
     # input = PipeInput(D, t, E, ν)
 
@@ -280,7 +280,7 @@ end
 
 function angle(input)
 
-     H, D, R, t, E, ν = input
+    (; H, D, R, t, E, ν) = input
     # input = AngleInput(H, D, R, t, E, ν)
 
     geometry = angle_geometry(H, D, R, t)
@@ -342,7 +342,7 @@ function cee_with_lips_brace(inputs)
 
     #  H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
-     H, D, L, R, t, E, ν = inputs
+     (; H, D, L, R, t, E, ν) = inputs
 
     # section_inputs = CeeLipsBraceInput(H, D, L, R, t, E, ν)
 
@@ -438,7 +438,7 @@ end
 
 function rectangular_tube_brace(section_inputs)
 
-     H, D, R, t, E, ν = section_inputs
+     (; H, D, R, t, E, ν) = section_inputs
 
 
     geometry = rectangular_tube_brace_geometry(H, D, R, t)

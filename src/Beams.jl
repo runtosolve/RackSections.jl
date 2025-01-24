@@ -95,7 +95,7 @@ function step_beam(input)
 
     # input = StepBeamInput(H, D, W, L, R, t, E, ν)
 
-     H, D, W, L, R, t, E, ν = input
+     (; H, D, W, L, R, t, E, ν) = input
 
     geometry = step_beam_geometry(H, D, W, L, R, t)
 
@@ -213,7 +213,7 @@ end
 
 function angled_step_beam(input)
 
-     H, D, W, L, A, R, t, E, ν = input
+     (; H, D, W, L, A, R, t, E, ν) = input
 
     # input = AngledStepBeamInput(H, D, W, L, A, R, t, E, ν)
 
