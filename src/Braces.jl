@@ -1,10 +1,10 @@
 module Braces
 
-using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
+using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, CUFSM, AISIS100, LinearAlgebra
 
 
 
-@with_kw struct CeeLipsBraceInput
+struct CeeLipsBraceInput
 
     H::Float64
     D::Float64
@@ -18,7 +18,7 @@ end
 
 
 
-@with_kw struct CeeLipsBrace
+struct CeeLipsBrace
 
     input::CeeLipsBraceInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -33,7 +33,7 @@ end
 
 
 
-@with_kw struct CeeInput
+struct CeeInput
 
     H::Float64
     D::Float64
@@ -44,7 +44,7 @@ end
 
 end
 
-@with_kw struct Cee
+struct Cee
 
     input::CeeInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -55,7 +55,7 @@ end
 end
 
 
-@with_kw struct AngleInput
+struct AngleInput
 
     H::Float64
     D::Float64
@@ -66,7 +66,7 @@ end
 
 end
 
-@with_kw struct Angle
+struct Angle
 
     input::AngleInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -76,7 +76,7 @@ end
 
 end
 
-@with_kw struct PipeInput
+struct PipeInput
 
     D::Float64
     t::Float64
@@ -85,7 +85,7 @@ end
 
 end
 
-@with_kw struct Pipe
+struct Pipe
 
     input::PipeInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -96,7 +96,7 @@ end
 end
 
 
-@with_kw struct RectangularTubeBraceInput
+struct RectangularTubeBraceInput
 
     H::Float64
     D::Float64
@@ -107,7 +107,7 @@ end
 
 end
 
-@with_kw struct RectangularTubeBrace
+struct RectangularTubeBrace
 
     input::RectangularTubeBraceInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -144,7 +144,7 @@ end
 
 function cee(input)
 
-    @unpack H, D, R, t, E, ν = input
+     H, D, R, t, E, ν = input
 
     # input = CeeInput(H, D, R, t, E, ν)
 
@@ -213,7 +213,7 @@ end
 
 function pipe(input)
 
-    @unpack D, t, E, ν = input
+     D, t, E, ν = input
 
     # input = PipeInput(D, t, E, ν)
 
@@ -280,7 +280,7 @@ end
 
 function angle(input)
 
-    @unpack H, D, R, t, E, ν = input
+     H, D, R, t, E, ν = input
     # input = AngleInput(H, D, R, t, E, ν)
 
     geometry = angle_geometry(H, D, R, t)
@@ -340,9 +340,9 @@ end
 
 function cee_with_lips_brace(inputs)
 
-    # @unpack H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
+    #  H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D = section_inputs
 
-    @unpack H, D, L, R, t, E, ν = inputs
+     H, D, L, R, t, E, ν = inputs
 
     # section_inputs = CeeLipsBraceInput(H, D, L, R, t, E, ν)
 
@@ -438,7 +438,7 @@ end
 
 function rectangular_tube_brace(section_inputs)
 
-    @unpack H, D, R, t, E, ν = section_inputs
+     H, D, R, t, E, ν = section_inputs
 
 
     geometry = rectangular_tube_brace_geometry(H, D, R, t)

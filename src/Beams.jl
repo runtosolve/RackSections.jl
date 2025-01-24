@@ -1,8 +1,8 @@
 module Beams
 
-using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, Parameters, CUFSM, AISIS100, LinearAlgebra
+using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, CUFSM, AISIS100, LinearAlgebra
 
-@with_kw struct StepBeamInput
+struct StepBeamInput
 
     H::Float64
     D::Float64
@@ -16,7 +16,7 @@ using CrossSectionGeometry, SectionProperties, RMI, LinesCurvesNodes, Parameters
 end
 
 
-@with_kw struct StepBeam
+struct StepBeam
 
     input::StepBeamInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -34,7 +34,7 @@ end
 
 end
 
-@with_kw struct AngledStepBeamInput
+struct AngledStepBeamInput
 
     H::Float64
     D::Float64
@@ -49,7 +49,7 @@ end
 end
 
 
-@with_kw struct AngledStepBeam
+struct AngledStepBeam
 
     input::AngledStepBeamInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
@@ -95,7 +95,7 @@ function step_beam(input)
 
     # input = StepBeamInput(H, D, W, L, R, t, E, ν)
 
-    @unpack H, D, W, L, R, t, E, ν = input
+     H, D, W, L, R, t, E, ν = input
 
     geometry = step_beam_geometry(H, D, W, L, R, t)
 
@@ -213,7 +213,7 @@ end
 
 function angled_step_beam(input)
 
-    @unpack H, D, W, L, A, R, t, E, ν = input
+     H, D, W, L, A, R, t, E, ν = input
 
     # input = AngledStepBeamInput(H, D, W, L, A, R, t, E, ν)
 
