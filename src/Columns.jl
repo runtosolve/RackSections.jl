@@ -1420,186 +1420,93 @@ function hat_with_lips_rib(section_inputs)
 end
 
 
-# function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
-
-    function hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
+function hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
 
         A = deg2rad(A)  #convert 
 
-    # D = D1 + D2 + D3
-    # D3 = D - D1 - D2 
-    # α = A - π/2
-    # yc = t * tan(α)
-    yc = t * cos(A/2)
-    # Δ = π - A
-
-    # A = 
-
-    ###rib geometry, bottom of section  
-    I = π / 2   #assume this is how long the rib arc is, hard coded, always 
-
-    Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
-    T = (R_rib_peak - t) * tan(I/2)
-    T_total = Tr + T
-    ΔTx = T_total * cos(I/2)
-
-    #####
-
-    ##work on X!!! 
-    D3 = D - D2 - D1 
-    X = (D3 + yc) * tan(π - A) 
-
-
-
-    # T = R * tan(Δ/2)
-
-    # θ_rib = atan(rib_depth/(rib_length/4))
-
-    # segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/4, D1, (X-t)/sin(π-A), D2-yc]
-    segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D1, (X-t)/sin(π-A), D2-yc]
-
-    θ = [π, A, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π-A, 0.0]
-    r = [R-t, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R-t]
-    n = [3, 4, 3, 3, 4, 4, 3, 3, 4, 3]
-    n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
-
-    section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H - (X-t)))
-
-    x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
-    y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
-
-    nodes = [x y zeros(Float64, length(x))]
-
-    #D1 flange hole minus
-    # D1_flat_minus = segments[8] - R - T 
-    D1_flat_minus = segments[8] - R - yc 
-    xloc = t/2 + (R-t/2) + D1_flat_minus/n[8] * 1.5
-    yloc = t/2
-    zloc = 0.0
-    atol_x = D1_flat_minus/n[8] * 0.55
-    atol_y = 0.0
-    atol_z = 0.0 
-
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
-    hole_element_index_D1_minus = hole_node_index[2] - 1
-
-    x[hole_node_index[1]] = de_D1 - dh_D1/2
-    x[hole_node_index[2]] = de_D1 + dh_D1/2
-
-
-    #D1 flange hole plus
-    # D1_flat_plus = segments[3] - R - T 
-    D1_flat_plus = segments[3] - R - yc
-    xloc = t/2 + (R-t/2) + D1_flat_plus/n[3] * 1.5
-    yloc = H-t/2
-    zloc = 0.0
-    atol_x = D1_flat_plus/n[3] * 0.55
-    atol_y = 0.0
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
-    hole_element_index_D1_plus = hole_node_index[2] - 1
-
-    x[hole_node_index[2]] = de_D1 - dh_D1/2
-    x[hole_node_index[1]] = de_D1 + dh_D1/2
-
-    D1_hole_element_index = [hole_element_index_D1_plus; hole_element_index_D1_minus]
-
-
-    #D2 flange hole minus
-    # D2_flat_minus = segments[10] - (R-t)*tan(Δ/2) 
-    D2_flat_minus = segments[10] - (R-t)*cos(A/2) 
-    xloc = D - D2_flat_minus/2
-    yloc = X - t/2
-    zloc = 0.0
-    atol_x = D2_flat_minus/n[10] * 0.55
-    atol_y = 0.001
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
-    hole_element_index_D2_minus = hole_node_index[2] - 1
-
-    x[hole_node_index[1]] = D - de_D2 - dh_D2/2
-    x[hole_node_index[2]] = D - de_D2 + dh_D2/2
-
-
-
-    #D2 flange hole plus
-    # D2_flat_plus = segments[1] - (R-t)*tan(Δ/2) 
-    D2_flat_plus = segments[1] - (R-t)*cos(A/2) 
-    xloc = D - D2_flat_plus/2
-    yloc = H - (X - t/2)
-    zloc = 0.0
-    atol_x = D2_flat_plus/n[1] * 0.55
-    atol_y = 0.001
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
-    hole_element_index_D2_plus = hole_node_index[2] - 1
-
-    x[hole_node_index[2]] = D - de_D2 - dh_D2/2
-    x[hole_node_index[1]] = D - de_D2 + dh_D2/2
-
-    D2_hole_element_index = [hole_element_index_D2_plus; hole_element_index_D2_minus]
-
-
-    #web hole plus
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + n_r[4] + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    H_flat = H - 2 * R
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
-    index_start = sum(n[1:4]) + sum(n_r[1:3]) + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
-    index_end = sum(n[1:6]) + sum(n_r[1:6]) + 1
-
-    centerline_rib_length = y[index_start] - y[index_end]
-
-    xloc = t/2
-    H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 + centerline_rib_length/2 + H_flat_from_rib/n[4] * 1.5
-    zloc = 0.0
-    atol_x = 0.001
-    atol_y = H_flat_from_rib/n[4] * 0.55
-    atol_z = 0.0 
-
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
-    hole_element_index_H_plus = hole_node_index[2] - 1
-
-    y[hole_node_index[1]] = H - de_H + dh_H/2
-    y[hole_node_index[2]] = H - de_H - dh_H/2
-
-
-
-    #web hole minus
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + n_r[4] + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    H_flat = H - 2 * R
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
-    index_start = sum(n[1:4]) + sum(n_r[1:3]) + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
-    index_end = sum(n[1:6]) + sum(n_r[1:6]) + 1
-
-    centerline_rib_length = y[index_start] - y[index_end]
-
-    xloc = t/2
-    H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 - centerline_rib_length/2 - H_flat_from_rib/n[7] * 1.5
-    zloc = 0.0
-    atol_x = 0.001
-    atol_y = H_flat_from_rib/n[7] * 0.55
-    atol_z = 0.0 
-
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
-    hole_element_index_H_minus = hole_node_index[2] - 1
-
-    H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
-
-
-    y[hole_node_index[1]] = de_H + dh_H/2
-    y[hole_node_index[2]] = de_H - dh_H/2
-
-    geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
+        yc = t * cos(A/2)
+        
+        
+        #rib geometry, bottom of section  
+        I = π / 2   #assume this is how long the rib arc is, hard coded, always 
+        
+        Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
+        T = (R_rib_peak - t) * tan(I/2)
+        T_total = Tr + T
+        ΔTx = T_total * cos(I/2)
+        
+        #calculate X 
+        D3 = D - D2 - D1 
+        X = (D3 + yc) * tan(π - A) + t
+        
+        #define straight line segments 
+        segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D1, (X-t)/sin(π-A), D2-yc]
+        
+        θ = [π, A, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π-A, 0.0]
+        r = [R-t, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R-t]
+        n = [3, 4, 3, 3, 4, 4, 3, 3, 4, 3]
+        n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
+        
+        section_geometry = CrossSectionGeometry.create_thin_walled_cross_section_geometry(segments, θ, n, r, n_r, t, centerline = "to left", offset = (D, H - (X-t)))
+        
+        x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
+        y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
+        
+        nodes = [x y zeros(Float64, length(x))]
+        
+        
+        #D1 flange hole minus
+        hole_node_index_start = sum(n[1:7]) + 1 + sum(n_r[1:7]) + 1
+        hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
+        hole_element_index_D1_minus = hole_node_index[2] - 1
+        x[hole_node_index[1]] = de_D1 - dh_D1/2
+        x[hole_node_index[2]] = de_D1 + dh_D1/2
+        
+        
+        #D1 flange hole plus
+        hole_node_index_start = sum(n[1:2]) + 1 + sum(n_r[1:2]) + 1
+        hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
+        hole_element_index_D1_plus = hole_node_index[2] - 1
+        x[hole_node_index[2]] = de_D1 - dh_D1/2
+        x[hole_node_index[1]] = de_D1 + dh_D1/2
+        
+        D1_hole_element_index = [hole_element_index_D1_plus; hole_element_index_D1_minus]
+        
+        
+        #D2 flange hole minus
+        hole_node_index_start = sum(n[1:end-1]) + 1 + sum(n_r[1:end]) + 1
+        hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
+        hole_element_index_D2_minus = hole_node_index[2] - 1
+        x[hole_node_index[1]] = D - de_D2 - dh_D2/2
+        x[hole_node_index[2]] = D - de_D2 + dh_D2/2
+        
+        #D2 flange hole plus
+        hole_node_index = [2, 3]
+        hole_element_index_D2_plus = hole_node_index[2] - 1
+        x[hole_node_index[2]] = D - de_D2 - dh_D2/2
+        x[hole_node_index[1]] = D - de_D2 + dh_D2/2
+        
+        D2_hole_element_index = [hole_element_index_D2_plus; hole_element_index_D2_minus]
+        
+        #web hole plus
+        hole_node_index_start = sum(n[1:3]) + 1 + sum(n_r[1:3]) + 1
+        hole_node_index = [hole_node_index_start, hole_node_index_start+1]
+        hole_element_index_H_plus = hole_node_index[2] - 1
+        y[hole_node_index[1]] = H - de_H + dh_H/2
+        y[hole_node_index[2]] = H - de_H - dh_H/2
+        
+        #web hole minus
+        hole_node_index_start = sum(n[1:6]) + 1 + sum(n_r[1:6]) + 1
+        hole_node_index = [hole_node_index_start, hole_node_index_start+1]
+        hole_element_index_H_minus = hole_node_index[2] - 1
+        y[hole_node_index[1]] = de_H + dh_H/2
+        y[hole_node_index[2]] = de_H - dh_H/2
+        
+        H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
+        
+        
+        geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
+        
 
     return geometry
 
@@ -1610,14 +1517,10 @@ end
 function hat_with_rib(section_inputs)
 
 
-     (; H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak) = section_inputs
-
-    D = D1 + D2 + D3
-
-    # input = HatRibInput(H, D1, D2, D3, A, X, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+     (; H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat) = section_inputs
 
 
-    geometry = hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    geometry = hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
     #gross section properties 
     gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
