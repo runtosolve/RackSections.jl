@@ -1420,20 +1420,46 @@ function hat_with_lips_rib(section_inputs)
 end
 
 
-function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+# function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    D = D1 + D2 + D3
-    α = A - π/2
-    yc = t * tan(α)
-    Δ = π - A
-    T = R * tan(Δ/2)
+    function hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
 
-    θ_rib = atan(rib_depth/(rib_length/4))
+        A = deg2rad(A)  #convert 
 
-    segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/4, D1, (X-t)/sin(π-A), D2-yc]
+    # D = D1 + D2 + D3
+    # D3 = D - D1 - D2 
+    # α = A - π/2
+    # yc = t * tan(α)
+    yc = t * cos(A/2)
+    # Δ = π - A
 
-    θ = [π, A, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π-A, 0.0]
-    r = [R-t, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R-t]
+    # A = 
+
+    ###rib geometry, bottom of section  
+    I = π / 2   #assume this is how long the rib arc is, hard coded, always 
+
+    Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
+    T = (R_rib_peak - t) * tan(I/2)
+    T_total = Tr + T
+    ΔTx = T_total * cos(I/2)
+
+    #####
+
+    ##work on X!!! 
+    D3 = D - D2 - D1 
+    X = (D3 + yc) * tan(π - A) 
+
+
+
+    # T = R * tan(Δ/2)
+
+    # θ_rib = atan(rib_depth/(rib_length/4))
+
+    # segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/4, D1, (X-t)/sin(π-A), D2-yc]
+    segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D1, (X-t)/sin(π-A), D2-yc]
+
+    θ = [π, A, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π-A, 0.0]
+    r = [R-t, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R-t]
     n = [3, 4, 3, 3, 4, 4, 3, 3, 4, 3]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
@@ -1445,7 +1471,8 @@ function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de
     nodes = [x y zeros(Float64, length(x))]
 
     #D1 flange hole minus
-    D1_flat_minus = segments[8] - R - T 
+    # D1_flat_minus = segments[8] - R - T 
+    D1_flat_minus = segments[8] - R - yc 
     xloc = t/2 + (R-t/2) + D1_flat_minus/n[8] * 1.5
     yloc = t/2
     zloc = 0.0
@@ -1461,7 +1488,8 @@ function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de
 
 
     #D1 flange hole plus
-    D1_flat_plus = segments[3] - R - T 
+    # D1_flat_plus = segments[3] - R - T 
+    D1_flat_plus = segments[3] - R - yc
     xloc = t/2 + (R-t/2) + D1_flat_plus/n[3] * 1.5
     yloc = H-t/2
     zloc = 0.0
@@ -1478,7 +1506,8 @@ function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de
 
 
     #D2 flange hole minus
-    D2_flat_minus = segments[10] - (R-t)*tan(Δ/2) 
+    # D2_flat_minus = segments[10] - (R-t)*tan(Δ/2) 
+    D2_flat_minus = segments[10] - (R-t)*cos(A/2) 
     xloc = D - D2_flat_minus/2
     yloc = X - t/2
     zloc = 0.0
@@ -1494,7 +1523,8 @@ function hat_with_rib_geometry(H, D1, D2, D3, A, X, R, t, dh_H, dh_D1, dh_D2, de
 
 
     #D2 flange hole plus
-    D2_flat_plus = segments[1] - (R-t)*tan(Δ/2) 
+    # D2_flat_plus = segments[1] - (R-t)*tan(Δ/2) 
+    D2_flat_plus = segments[1] - (R-t)*cos(A/2) 
     xloc = D - D2_flat_plus/2
     yloc = H - (X - t/2)
     zloc = 0.0
