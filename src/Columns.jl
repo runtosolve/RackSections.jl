@@ -71,10 +71,9 @@ struct CeeLipsRibInput
     hole_pitch_D::Float64
     hole_length_H::Float64
     hole_length_D::Float64
-    rib_depth::Float64
-    rib_length::Float64
-    rib_radius_start::Float64
-    rib_radius_peak::Float64
+    H_rib::Float64
+    R_rib_flat::Float64
+    R_rib_peak::Float64
 
 end
 
@@ -156,9 +155,8 @@ struct HatLipsRibInput
     H::Float64
     D1::Float64
     D2::Float64
-    D3::Float64
+    D::Float64
     A::Float64
-    X::Float64
     L::Float64
     R::Float64
     t::Float64
@@ -176,11 +174,9 @@ struct HatLipsRibInput
     hole_length_H::Float64
     hole_length_D1::Float64
     hole_length_D2::Float64
-    rib_depth::Float64
-    rib_length::Float64
-    rib_radius_start::Float64
-    rib_radius_peak::Float64
-
+    H_rib::Float64
+    R_rib_peak::Float64
+    R_rib_flat::Float64
 end
 
 
@@ -222,9 +218,8 @@ struct HatRibInput
     H::Float64
     D1::Float64
     D2::Float64
-    D3::Float64
+    D::Float64
     A::Float64
-    X::Float64
     R::Float64
     t::Float64
     E::Float64
@@ -241,10 +236,9 @@ struct HatRibInput
     hole_length_H::Float64
     hole_length_D1::Float64
     hole_length_D2::Float64
-    rib_depth::Float64
-    rib_length::Float64
-    rib_radius_start::Float64
-    rib_radius_peak::Float64
+    H_rib::Float64
+    R_rib_peak::Float64
+    R_rib_flat::Float64
 
 end
 
@@ -287,9 +281,8 @@ struct HatLipsTrapezoidalRibInput
     H::Float64
     D1::Float64
     D2::Float64
-    D3::Float64
+    D::Float64
     A1::Float64
-    X::Float64
     L::Float64
     R::Float64
     t::Float64
@@ -308,10 +301,8 @@ struct HatLipsTrapezoidalRibInput
     hole_length_D1::Float64
     hole_length_D2::Float64
     A2::Float64
-    hr::Float64
-    wr::Float64
-    Rr::Float64
-
+    H_rib::Float64
+    W_rib::Float64
 end
 
 
@@ -368,10 +359,9 @@ struct UniStrutInput
     hole_pitch_D::Float64
     hole_length_H::Float64
     hole_length_D::Float64
-    rib_depth::Float64
-    rib_length::Float64
-    rib_radius_start::Float64
-    rib_radius_peak::Float64
+    H_rib::Float64
+    R_rib_peak::Float64
+    R_rib_flat::Float64
 
 end
 
@@ -856,14 +846,25 @@ function rectangular_tube(section_inputs)
 end
 
 
-function cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, H_rib, R_rib_flat, R_rib_peak)
 
-    θ_rib = atan(rib_depth/(rib_length/4))
+    # θ_rib = atan(rib_depth/(rib_length/4))
 
-    segments = [L, D, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D, L]
+    #rib geometry, bottom of section  
+    I = π / 2   #assume this is how long the rib arc is, hard coded, always 
+    Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
+    T = (R_rib_peak - t) * tan(I/2)
+    T_total = Tr + T
+    ΔTx = T_total * cos(I/2)
 
-    θ = [π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π/2]
-    r = [R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R]
+
+
+    # segments = [L, D, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D, L]
+
+    segments = [L, D, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D, L]
+
+    θ = [π/2, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π/2]
+    r = [R, R, R_rib_flat, R_rib_peak-t, R_rib_flat, R, R]
     n = [4, 4, 3, 4, 4, 3, 4, 4]
     n_r = [3, 3, 3, 3, 3, 3, 3] .* 3
 
@@ -962,11 +963,11 @@ end
 
 function cee_with_lips_rib(section_inputs)
 
-     (; H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak) = section_inputs
+     (; H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, H_rib, R_rib_flat, R_rib_peak) = section_inputs
 
     # input = CeeLipsRibInput(H, D, L, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    geometry = cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    geometry = cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, H_rib, R_rib_flat, R_rib_peak)
 
     #gross section properties 
     gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
@@ -1011,7 +1012,7 @@ function cee_with_lips_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 7)
+    lengths = range(1.25*minimum([H, D]), 2.25*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -1039,7 +1040,7 @@ function cee_with_lips_rib(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.5*minimum([H,D]), 7)
+    lengths = range(1.0*minimum([H, D]), 2.0*minimum([H,D]), 7)
     local_buckling_Myy_neg = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_yy_neg  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Myy_neg, eig))
 
@@ -1109,20 +1110,29 @@ end
 
 
 
-function hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
 
-    D = D1 + D2 + D3
-    α = A - π/2
-    yc = t * tan(α)
-    Δ = π - A
-    T = R * tan(Δ/2)
+    A = deg2rad(A)  #convert 
 
-    θ_rib = atan(rib_depth/(rib_length/4))
+    yc = t * cos(A/2)
 
-    segments = [L-t, D2-t-yc, (X-t)/sin(π-A), D1, H/2-rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/4, D1, (X-t)/sin(π-A), D2-t-yc, L-t]
 
-    θ = [-π/2, π, A, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π-A, 0.0, -π/2]
-    r = [R-t, R-t, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R-t, R-t]
+    #rib geometry, bottom of section  
+    I = π / 2   #assume this is how long the rib arc is, hard coded, always 
+
+    Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
+    T = (R_rib_peak - t) * tan(I/2)
+    T_total = Tr + T
+    ΔTx = T_total * cos(I/2)
+
+    #calculate X 
+    D3 = D - D2 - D1 
+    X = (D3 + yc) * tan(π - A) + t
+
+    segments = [L-t, D2-t-yc, (X-t)/sin(π-A), D1, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D1, (X-t)/sin(π-A), D2-t-yc, L-t]
+
+    θ = [-π/2, π, A, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π-A, 0.0, -π/2]
+    r = [R-t, R-t, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R-t, R-t]
     n = [4, 3, 4, 3, 3, 4, 4, 3, 3, 4, 3, 4]
     n_r = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3] .* 3
 
@@ -1131,35 +1141,21 @@ function hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, d
     x = [section_geometry.centerline_node_XY[i][1] for i in eachindex(section_geometry.centerline_node_XY)]
     y = [section_geometry.centerline_node_XY[i][2] for i in eachindex(section_geometry.centerline_node_XY)]
 
-    nodes = [x y zeros(Float64, length(x))]
+
+    # nodes = [x y zeros(Float64, length(x))]
 
     #D1 flange hole minus
-    D1_flat_minus = segments[9] - R - T 
-    xloc = t/2 + (R-t/2) + D1_flat_minus/n[9] * 1.5
-    yloc = t/2
-    zloc = 0.0
-    atol_x = D1_flat_minus/n[9] * 0.55
-    atol_y = 0.0
-    atol_z = 0.0 
-
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    hole_node_index_start = sum(n[1:8]) + 1 + sum(n_r[1:8]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_D1_minus = hole_node_index[2] - 1
-
     x[hole_node_index[1]] = de_D1 - dh_D1/2
     x[hole_node_index[2]] = de_D1 + dh_D1/2
 
 
     #D1 flange hole plus
-    D1_flat_plus = segments[4] - R - T 
-    xloc = t/2 + (R-t/2) + D1_flat_plus/n[4] * 1.5
-    yloc = H-t/2
-    zloc = 0.0
-    atol_x = D1_flat_plus/n[4] * 0.55
-    atol_y = 0.0
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    hole_node_index_start = sum(n[1:3]) + 1 + sum(n_r[1:3]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_D1_plus = hole_node_index[2] - 1
-
     x[hole_node_index[2]] = de_D1 - dh_D1/2
     x[hole_node_index[1]] = de_D1 + dh_D1/2
 
@@ -1167,32 +1163,16 @@ function hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, d
 
 
     #D2 flange hole minus
-    D2_flat_minus = segments[11] - (R-t) - (R-t)*tan(Δ/2) 
-    xloc = D - t - (R-t) - D2_flat_minus/2
-    yloc = X - t/2
-    zloc = 0.0
-    atol_x = D2_flat_minus/n[11] * 0.55
-    atol_y = 0.001
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    hole_node_index_start = sum(n[1:end-2]) + 1 + sum(n_r[1:end-1]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_D2_minus = hole_node_index[2] - 1
-
     x[hole_node_index[1]] = D - de_D2 - dh_D2/2
     x[hole_node_index[2]] = D - de_D2 + dh_D2/2
 
-
-
+  
     #D2 flange hole plus
-    D2_flat_plus = segments[2] - (R-t) - (R-t)*tan(Δ/2) 
-    xloc = D - t - (R-t) - D2_flat_plus/2
-    yloc = H - (X - t/2)
-    zloc = 0.0
-    atol_x = D2_flat_plus/n[2] * 0.55
-    atol_y = 0.001
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    hole_node_index = [n[1] + n_r[1] + 1 + 1, n[1] + n_r[1] + 2 + 1]
     hole_element_index_D2_plus = hole_node_index[2] - 1
-
     x[hole_node_index[2]] = D - de_D2 - dh_D2/2
     x[hole_node_index[1]] = D - de_D2 + dh_D2/2
 
@@ -1200,63 +1180,22 @@ function hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, d
 
 
     #web hole plus
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + n_r[4] + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    H_flat = H - 2 * R
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
-    index_start = sum(n[1:5]) + sum(n_r[1:4]) + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
-    index_end = sum(n[1:7]) + sum(n_r[1:7]) + 1
-
-    centerline_rib_length = y[index_start] - y[index_end]
-
-    xloc = t/2
-    H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 + centerline_rib_length/2 + H_flat_from_rib/n[5] * 1.5
-    zloc = 0.0
-    atol_x = 0.001
-    atol_y = H_flat_from_rib/n[5] * 0.55
-    atol_z = 0.0 
-
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    hole_node_index_start = sum(n[1:4]) + 1 + sum(n_r[1:4]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start+1]
     hole_element_index_H_plus = hole_node_index[2] - 1
-
     y[hole_node_index[1]] = H - de_H + dh_H/2
     y[hole_node_index[2]] = H - de_H - dh_H/2
 
 
-
     #web hole minus
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + n_r[4] + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    H_flat = H - 2 * R
-
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
-    index_start = sum(n[1:5]) + sum(n_r[1:4]) + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
-    index_end = sum(n[1:7]) + sum(n_r[1:7]) + 1
-
-    centerline_rib_length = y[index_start] - y[index_end]
-
-    xloc = t/2
-    H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 - centerline_rib_length/2 - H_flat_from_rib/n[8] * 1.5
-    zloc = 0.0
-    atol_x = 0.001
-    atol_y = H_flat_from_rib/n[8] * 0.55
-    atol_z = 0.0 
-
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    hole_node_index_start = sum(n[1:7]) + 1 + sum(n_r[1:7]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start+1]
     hole_element_index_H_minus = hole_node_index[2] - 1
+    y[hole_node_index[1]] = de_H + dh_H/2
+    y[hole_node_index[2]] = de_H - dh_H/2
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
-
-    y[hole_node_index[1]] = de_H + dh_H/2
-    y[hole_node_index[2]] = de_H - dh_H/2
 
     geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
 
@@ -1269,13 +1208,13 @@ end
 
 function hat_with_lips_rib(section_inputs)
 
-     (; H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak) = section_inputs
+     (; H, D1, D2, D, A, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, H_rib, R_rib_peak, R_rib_flat) = section_inputs
 
-    D = D1 + D2 + D3
+    # D = D1 + D2 + D3
 
     # input = HatLipsRibInput(H, D1, D2, D3, A, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-    geometry = hat_with_lips_rib_geometry(H, D1, D2, D3, A, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    geometry = hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
     #gross section properties 
     gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
@@ -1324,7 +1263,7 @@ function hat_with_lips_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 7)
+    lengths = range(1.0*minimum([H, D]), 3.0*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -1517,7 +1456,16 @@ end
 function hat_with_rib(section_inputs)
 
 
-     (; H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat) = section_inputs
+     (; H, D1, D2, D, A, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2,
+     
+     hole_pitch_H,
+    hole_pitch_D1,
+    hole_pitch_D2,
+    hole_length_H,
+    hole_length_D1,
+    hole_length_D2,
+     
+     H_rib, R_rib_peak, R_rib_flat) = section_inputs
 
 
     geometry = hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
@@ -1569,8 +1517,14 @@ function hat_with_rib(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(0.75*maximum([H, D]), 1.75*maximum([H,D]), 7)
-    local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
+    # lengths = range(0.75*maximum([H, D]), 1.75*maximum([H,D]), 7)
+    lengths = range(0.25*maximum([H, D]), 0.75*maximum([H,D]), 7)
+
+    supports = [[1, 1, 1, 1, 1], [length(geometry.x), 1, 1, 1, 1]]
+
+    # local_buckling_P = CUFSM.Tools.open_section_analysis(x_center, y_center, t, lengths, E, ν, P, Mxx, Mzz, M11, M22, constraints, springs, supports, neigs)
+
+    local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, supports, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
 
@@ -1665,26 +1619,47 @@ function hat_with_rib(section_inputs)
 end
 
 
-function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, hr, wr, Rr)
+function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, H_rib, W_rib)
 
-    D = D1 + D2 + D3
-    α = A1 - π/2
-    yc = t * tan(α)
-    Δ = π - A1
-    T = R * tan(Δ/2)
+    A1 = deg2rad(A1)  #convert 
+    A2 = deg2rad(A2)  #convert 
 
-    α2 = A2 - π/2
-    yc2 = t * tan(α2)
-    Δ2 = π - A2
-    T2= Rr * tan(Δ2/2)
+    yc1 = t * cos(A1/2)
+    yc2 = t * cos(A2/2)
+
+    #calculate X 
+    D3 = D - D2 - D1 
+    X = (D3 + yc1) * tan(π - A1) + t
+
+    # D = D1 + D2 + D3
+    # α = A1 - π/2
+    # yc = t * tan(α)
+    # Δ = π - A1
+    # T = R * tan(Δ/2)
+
+    # α2 = A2 - π/2
+    # yc2 = t * tan(α2)
+    # Δ2 = π - A2
+    # T2= Rr * tan(Δ2/2)
     
-    hr1 = (wr-t) / tan(Δ2) - yc2
+    # hr1 = (wr-t) / tan(Δ2) - yc2
     
+    H2 = (H_rib - t) / tan(π - A2)
+
+    # H2 = (H - (W_rib - yc2 - yc2) - H1 - H1) / 2
+
+    H1 = (H - (W_rib - yc2 - yc2) - H2 - H2)/2
+
+
+
+    # segments = [L-t, D2-t-yc1, (X-t)/sin(π-A1), D1, H/2-hr/2-hr1, (wr-t)/sin(Δ2), hr - 2*yc2, (wr-t)/sin(Δ2), H/2-hr/2 - hr1, D1, (X-t)/sin(π-A1), D2-t-yc, L-t]
     
-    segments = [L-t, D2-t-yc, (X-t)/sin(π-A1), D1, H/2-hr/2-hr1, (wr-t)/sin(Δ2), hr - 2*yc2, (wr-t)/sin(Δ2), H/2-hr/2 - hr1, D1, (X-t)/sin(π-A1), D2-t-yc, L-t]
+
+    segments = [L-t, D2-t-yc1, (X-t)/sin(π-A1), D1, H1, (H_rib - t) / sin(π - A2), W_rib - 2 * yc2, (H_rib - t) / sin(π - A2), H1, D1, (X-t)/sin(π-A1), D2-t-yc1, L-t]
     
-    θ = [-π/2, π, A1, π, -π/2, -π/2 + Δ2, -π/2, -π/2 - Δ2, -π/2, 0.0, π-A1, 0.0, -π/2]
-    r = [R-t, R-t, R, R, Rr, Rr-t, Rr-t, Rr, R, R, R-t, R-t]
+
+    θ = [-π/2, π, A1, π, -π/2, -π/2 + (π - A2), -π/2, -π/2 - (π - A2), -π/2, 0.0, π-A1, 0.0, -π/2]
+    r = [R-t, R-t, R, R, R, R-t, R-t, R, R, R, R-t, R-t]
     n = [4, 3, 4, 3, 3, 4, 4, 4, 3, 3, 4, 3, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
 
@@ -1696,15 +1671,21 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
     nodes = [x y zeros(Float64, length(x))]
 
     #D1 flange hole minus
-    D1_flat_minus = segments[10] - R - T 
-    xloc = t/2 + (R-t/2) + D1_flat_minus/n[10] * 1.5
-    yloc = t/2
-    zloc = 0.0
-    atol_x = D1_flat_minus/n[10] * 0.55
-    atol_y = 0.0
-    atol_z = 0.0 
+    # D1_flat_minus = segments[10] - R - T 
+    # xloc = t/2 + (R-t/2) + D1_flat_minus/n[10] * 1.5
+    # yloc = t/2
+    # zloc = 0.0
+    # atol_x = D1_flat_minus/n[10] * 0.55
+    # atol_y = 0.0
+    # atol_z = 0.0 
 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    # hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+
+    hole_node_index_start = sum(n[1:9]) + 1 + sum(n_r[1:9]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
+
+
+
     hole_element_index_D1_minus = hole_node_index[2] - 1
 
     x[hole_node_index[1]] = de_D1 - dh_D1/2
@@ -1712,14 +1693,19 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
 
 
     #D1 flange hole plus
-    D1_flat_plus = segments[4] - R - T 
-    xloc = t/2 + (R-t/2) + D1_flat_plus/n[4] * 1.5
-    yloc = H-t/2
-    zloc = 0.0
-    atol_x = D1_flat_plus/n[4] * 0.55
-    atol_y = 0.0
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    # D1_flat_plus = segments[4] - R - T 
+    # xloc = t/2 + (R-t/2) + D1_flat_plus/n[4] * 1.5
+    # yloc = H-t/2
+    # zloc = 0.0
+    # atol_x = D1_flat_plus/n[4] * 0.55
+    # atol_y = 0.0
+    # atol_z = 0.0 
+    # hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+
+
+
+    hole_node_index_start = sum(n[1:3]) + 1 + sum(n_r[1:3]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_D1_plus = hole_node_index[2] - 1
 
     x[hole_node_index[2]] = de_D1 - dh_D1/2
@@ -1729,14 +1715,17 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
 
 
     #D2 flange hole minus
-    D2_flat_minus = segments[12] - (R-t) - (R-t)*tan(Δ/2) 
-    xloc = D - t - (R-t) - D2_flat_minus/2
-    yloc = X - t/2
-    zloc = 0.0
-    atol_x = D2_flat_minus/n[12] * 0.55
-    atol_y = 0.001
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    # D2_flat_minus = segments[12] - (R-t) - (R-t)*tan(Δ/2) 
+    # xloc = D - t - (R-t) - D2_flat_minus/2
+    # yloc = X - t/2
+    # zloc = 0.0
+    # atol_x = D2_flat_minus/n[12] * 0.55
+    # atol_y = 0.001
+    # atol_z = 0.0 
+    # hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+
+    hole_node_index_start = sum(n[1:11]) + 1 + sum(n_r[1:11]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_D2_minus = hole_node_index[2] - 1
 
     x[hole_node_index[1]] = D - de_D2 - dh_D2/2
@@ -1745,14 +1734,17 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
 
 
     #D2 flange hole plus
-    D2_flat_plus = segments[2] - (R-t) - (R-t)*tan(Δ/2) 
-    xloc = D - t - (R-t) - D2_flat_plus/2
-    yloc = H - (X - t/2)
-    zloc = 0.0
-    atol_x = D2_flat_plus/n[2] * 0.55
-    atol_y = 0.001
-    atol_z = 0.0 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    # D2_flat_plus = segments[2] - (R-t) - (R-t)*tan(Δ/2) 
+    # xloc = D - t - (R-t) - D2_flat_plus/2
+    # yloc = H - (X - t/2)
+    # zloc = 0.0
+    # atol_x = D2_flat_plus/n[2] * 0.55
+    # atol_y = 0.001
+    # atol_z = 0.0 
+    # hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+
+    hole_node_index_start = sum(n[1:1]) + 1 + sum(n_r[1:1]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_D2_plus = hole_node_index[2] - 1
 
     x[hole_node_index[2]] = D - de_D2 - dh_D2/2
@@ -1764,25 +1756,29 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
     #web hole plus
 
     # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + n_r[4] + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    H_flat = H - 2 * R
+    # # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
+    # H_flat = H - 2 * R
 
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
-    index_start = sum(n[1:5]) + sum(n_r[1:4]) + 1
-    # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
-    index_end = sum(n[1:8]) + sum(n_r[1:8]) + 1
+    # # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
+    # index_start = sum(n[1:5]) + sum(n_r[1:4]) + 1
+    # # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
+    # index_end = sum(n[1:8]) + sum(n_r[1:8]) + 1
 
-    centerline_rib_length = y[index_start] - y[index_end]
+    # centerline_rib_length = y[index_start] - y[index_end]
 
-    xloc = t/2
-    H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 + centerline_rib_length/2 + H_flat_from_rib/n[5] * 1.5
-    zloc = 0.0
-    atol_x = 0.001
-    atol_y = H_flat_from_rib/n[5] * 0.55
-    atol_z = 0.0 
+    # xloc = t/2
+    # H_flat_from_rib = H_flat/2 - centerline_rib_length/2
+    # yloc = H/2 + centerline_rib_length/2 + H_flat_from_rib/n[5] * 1.5
+    # zloc = 0.0
+    # atol_x = 0.001
+    # atol_y = H_flat_from_rib/n[5] * 0.55
+    # atol_z = 0.0 
 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+    # hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+
+
+    hole_node_index_start = sum(n[1:4]) + 1 + sum(n_r[1:4]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
     hole_element_index_H_plus = hole_node_index[2] - 1
 
     y[hole_node_index[1]] = H - de_H + dh_H/2
@@ -1794,24 +1790,27 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, d
 
     # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + n_r[3] + n[4] + n_r[4] + 1
     # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] + 1 
-    H_flat = H - 2 * R
+    # H_flat = H - 2 * R
 
-    # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
-    # index_start = sum(n[1:5]) + sum(n_r[1:4]) + 1
-    # # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
-    # index_end = sum(n[1:7]) + sum(n_r[1:7]) + 1
+    # # index_start = n[1] + n_r[1] + n[2] + n_r[2] + n[3] + 1
+    # # index_start = sum(n[1:5]) + sum(n_r[1:4]) + 1
+    # # # index_end = sum(n) + sum(n_r) - n[end] - n_r[end] - n[end-1] - n_r[end-1] - n[end-2] + 1 
+    # # index_end = sum(n[1:7]) + sum(n_r[1:7]) + 1
 
-    # centerline_rib_length = y[index_start] - y[index_end]
+    # # centerline_rib_length = y[index_start] - y[index_end]
 
-    xloc = t/2
-    H_flat_from_rib = H_flat/2 - centerline_rib_length/2
-    yloc = H/2 - centerline_rib_length/2 - H_flat_from_rib/n[9] * 1.5
-    zloc = 0.0
-    atol_x = 0.001
-    atol_y = H_flat_from_rib/n[9] * 0.55
-    atol_z = 0.0 
+    # xloc = t/2
+    # H_flat_from_rib = H_flat/2 - centerline_rib_length/2
+    # yloc = H/2 - centerline_rib_length/2 - H_flat_from_rib/n[9] * 1.5
+    # zloc = 0.0
+    # atol_x = 0.001
+    # atol_y = H_flat_from_rib/n[9] * 0.55
+    # atol_z = 0.0 
 
-    hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
+
+    hole_node_index_start = sum(n[1:8]) + 1 + sum(n_r[1:8]) + 1
+    hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
+    # hole_node_index = LinesCurvesNodes.find_nodes(nodes, xloc, yloc, zloc, atol_x, atol_y, atol_z)
     hole_element_index_H_minus = hole_node_index[2] - 1
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
@@ -1831,13 +1830,13 @@ end
 function hat_with_lips_trapezoidal_rib(section_inputs)
 
 
-     (; H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr) = section_inputs
+     (; H, D1, D2, D, A1, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, H_rib, W_rib) = section_inputs
 
-    D = D1 + D2 + D3
-
+    # D = D1 + D2 + D3
+    # D3 = D - D2 - D1 
     # input = HatLipsTrapezoidalRibInput(H, D1, D2, D3, A1, X, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, A2, hr, wr, Rr)
 
-    geometry = hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D3, A1, X, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, hr, wr, Rr)
+    geometry = hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, H_rib, W_rib)
     #gross section properties 
     gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
 
@@ -1983,14 +1982,24 @@ end
 
 
 
-function unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, H_rib, R_rib_flat, R_rib_peak)
 
-    θ_rib = atan(rib_depth/(rib_length/4))
+    # θ_rib = atan(rib_depth/(rib_length/4))
 
-    segments = [L2, L1, D, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D, L1, L2]
 
-    θ = [0.0, π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, π/2, π]
-    r = [R, R, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R, R]
+    #rib geometry, bottom of section  
+    I = π / 2   #assume this is how long the rib arc is, hard coded, always 
+
+    Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
+    T = (R_rib_peak - t) * tan(I/2)
+    T_total = Tr + T
+    ΔTx = T_total * cos(I/2)
+
+
+    segments = [L2, L1, D, H/2-ΔTx,T_total, T_total, H/2-ΔTx, D, L1, L2]
+
+    θ = [0.0, π/2, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π/2, π]
+    r = [R, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R]
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
@@ -2089,9 +2098,9 @@ function unistrut_in(section_inputs)
 
     # input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-     (; H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak) = section_inputs
+     (; H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, H_rib, R_rib_flat, R_rib_peak) = section_inputs
 
-    geometry = unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    geometry = unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, H_rib, R_rib_flat, R_rib_peak)
 
     #gross section properties 
     gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 
@@ -2136,7 +2145,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
     neigs = 1
-    lengths = range(1.0*minimum([H, D]), 1.75*minimum([H,D]), 7)
+    lengths = range(1.5*minimum([H, D]), 2.5*minimum([H,D]), 7)
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
@@ -2150,7 +2159,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 7)
+    lengths = range(0.75*minimum([H, D]), 1.25*minimum([H,D]), 9)
     local_buckling_Mxx = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Mcrℓ_xx  = minimum(CUFSM.Tools.get_load_factor(local_buckling_Mxx, eig))
 
@@ -2205,7 +2214,7 @@ function unistrut_in(section_inputs)
     constraints = []
     springs = []
 
-    lengths = range(1.0*Lcrd, 2.0*Lcrd, 7)
+    lengths = range(1.25*Lcrd, 2.0*Lcrd, 7)
     distortional_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     Pcrd  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_P, eig))
 
@@ -2234,14 +2243,23 @@ end
 
 
 
-function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, H_rib, R_rib_flat, R_rib_peak)
 
-    θ_rib = atan(rib_depth/(rib_length/4))
+    # θ_rib = atan(rib_depth/(rib_length/4))
 
-    segments = [L2-t, L1 - 2*t, D-t, H/2-rib_length/2 + rib_length/4, rib_depth/sin(θ_rib), rib_depth/sin(θ_rib), H/2-rib_length/2 + rib_length/4, D-t, L1-2*t, L2 -t]
+    #rib geometry, bottom of section  
+    I = π / 2   #assume this is how long the rib arc is, hard coded, always 
 
-    θ = [0.0, -π/2, π, -π/2, -π/4, -3π/4, -π/2, 0.0, -π/2, π]
-    r = [R-t, R-t, R, rib_radius_start, rib_radius_peak, rib_radius_start, R, R-t, R-t]
+    Tr = ((H_rib - t) - (R_rib_peak - t) * (1 - cos(I/2))) / sin(I/2)
+    T = (R_rib_peak - t) * tan(I/2)
+    T_total = Tr + T
+    ΔTx = T_total * cos(I/2)
+
+
+    segments = [L2-t, L1 - 2*t, D-t, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D-t, L1-2*t, L2 -t]
+
+    θ = [0.0, -π/2, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, -π/2, π]
+    r = [R-t, R-t, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R-t, R-t]
     n = [4, 4, 4, 3, 4, 4, 3, 4, 4, 4]
     n_r = [5, 5, 5, 5, 5, 5, 5, 5, 5]
 
@@ -2337,9 +2355,9 @@ function unistrut_out(section_inputs)
 
     # input = UniStrutInput(H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
 
-     (; H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak) = section_inputs
+     (; H, D, L1, L2, R, t, E, ν, dh_H, dh_D, de_H, de_D, hole_pitch_H, hole_pitch_D, hole_length_H, hole_length_D, H_rib, R_rib_flat, R_rib_peak) = section_inputs
 
-    geometry = unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, rib_depth, rib_length, rib_radius_start, rib_radius_peak)
+    geometry = unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D, H_rib, R_rib_flat, R_rib_peak)
 
     #gross section properties 
     gross_section_properties = SectionProperties.open_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x)-1)) 

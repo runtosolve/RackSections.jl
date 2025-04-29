@@ -189,6 +189,8 @@ end
 
 function angled_step_beam_geometry(H, D, W, L, A, R, t)
 
+    A = deg2rad(A)
+
     angled_step_segment = L / sin(A)
 
     segments = [H-L, D-W+angled_step_segment*cos(A), angled_step_segment, W, H, D]
