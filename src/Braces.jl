@@ -367,7 +367,9 @@ function cee_with_lips_brace(inputs)
     springs = []
     neigs = 1
     lengths = range(0.75*minimum([H, D]), 2.0*minimum([H,D]), 7)
+    # lengths = round.(lengths, digits=2)  #like CUFSM v5.50 GUI 
     local_buckling_P = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, tg, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
+    #local_buckling_P = CUFSM.Tools.open_section_analysis(round.(geometry.x, digits=4), round.(geometry.y, digits=4), tg, round.(lengths, digits=2), E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
     eig = 1
     Pcrℓ = minimum(CUFSM.Tools.get_load_factor(local_buckling_P, eig))
 
