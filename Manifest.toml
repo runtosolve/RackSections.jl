@@ -87,9 +87,9 @@ version = "0.3.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
-git-tree-sha1 = "0037835448781bb46feb39866934e243886d756a"
+git-tree-sha1 = "9d8a54ce4b17aa5bdce0ea5c34bc5e7c340d16ad"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.18.0"
+version = "4.18.1"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -485,9 +485,9 @@ version = "2023.12.12"
 
 [[deps.MutableArithmetics]]
 deps = ["LinearAlgebra", "SparseArrays", "Test"]
-git-tree-sha1 = "a03ae6a640a92191615fb53baae6a74b74bce56d"
+git-tree-sha1 = "5801388fbfb801822721b5dee720a55a6d03d41d"
 uuid = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
-version = "1.6.5"
+version = "1.6.6"
 
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
@@ -567,9 +567,9 @@ version = "1.5.0"
 
 [[deps.PrettyTables]]
 deps = ["Crayons", "LaTeXStrings", "Markdown", "PrecompileTools", "Printf", "REPL", "Reexport", "StringManipulation", "Tables"]
-git-tree-sha1 = "60f23271568238b236899d00fc290e43d1f2658f"
+git-tree-sha1 = "5e9fe23c86d3ca630baa1efcad78575a27f158b2"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "3.0.10"
+version = "3.0.11"
 
 [[deps.Printf]]
 deps = ["Unicode"]
@@ -831,9 +831,9 @@ version = "1.6.1"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "59071150afa35787c1656ba234cf03fdf8e2603f"
+git-tree-sha1 = "80d3930c6347cfce7ccf96bd3bafdf079d9c0390"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.13.8+0"
+version = "2.13.9+0"
 
 [[deps.Xorg_libpciaccess_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Zlib_jll"]
