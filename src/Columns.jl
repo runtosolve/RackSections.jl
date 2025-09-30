@@ -614,8 +614,6 @@ struct UniStrutOut
     Mcrℓ_yy_neg::Float64
     local_buckling_Myy_pos::CUFSM.Model
     Mcrℓ_yy_pos::Float64 
-    distortional_buckling_P::CUFSM.Model 
-    Pcrd::Float64
 
 end
 
@@ -4203,7 +4201,7 @@ function unistrut_out(section_inputs)
 
     #gather up everything 
     # properties = UniStrut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd, distortional_buckling_Mxx, Mcrd)
-    properties = UniStrutOut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos, distortional_buckling_P, Pcrd)
+    properties = UniStrutOut(section_inputs, geometry, gross_section_properties, net_section_properties, Lnp_H, Lnp_D, tg_H, tg_D, tg, td_H, td_D, td, local_buckling_P, Pcrℓ, local_buckling_Mxx, Mcrℓ_xx, local_buckling_Myy_neg, Mcrℓ_yy_neg, local_buckling_Myy_pos, Mcrℓ_yy_pos)
 
 
 
