@@ -103,12 +103,12 @@ function step_beam(input)
     gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
-    gross_section_properties.xs = -1
-    gross_section_properties.ys = -1
-    gross_section_properties.Cw = -1
-    gross_section_properties.B1 = -1
-    gross_section_properties.B2 = -1
-    gross_section_properties.wn = [-1, -1]
+    # gross_section_properties.xs = -1
+    # gross_section_properties.ys = -1
+    # gross_section_properties.Cw = -1
+    # gross_section_properties.B1 = -1
+    # gross_section_properties.B2 = -1
+    # gross_section_properties.wn = [-1, -1]
 
     #local buckling, compression
     P = 1.0
@@ -225,12 +225,12 @@ function angled_step_beam(input)
     gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
-    gross_section_properties.xs = -1
-    gross_section_properties.ys = -1
-    gross_section_properties.Cw = -1
-    gross_section_properties.B1 = -1
-    gross_section_properties.B2 = -1
-    gross_section_properties.wn = [-1, -1]
+    # gross_section_properties.xs = -1
+    # gross_section_properties.ys = -1
+    # gross_section_properties.Cw = -1
+    # gross_section_properties.B1 = -1
+    # gross_section_properties.B2 = -1
+    # gross_section_properties.wn = [-1, -1]
 
     
     #local buckling, compression
