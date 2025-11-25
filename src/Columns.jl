@@ -133,8 +133,8 @@ struct RectangularTube
 
     input::RectangularTubeInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}, D_hole_element_index::Vector{Int64}, H_hole_element_index::Vector{Int64}}
-    properties::SectionProperties.SectionPropertiesObject
-    net_properties::SectionProperties.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesClosedObject
+    net_properties::SectionProperties.SectionPropertiesClosedObject
     Lnp_H::Float64
     Lnp_D::Float64
     tg_H::Float64
@@ -1058,12 +1058,12 @@ function rectangular_tube(section_inputs)
     gross_section_properties = SectionProperties.closed_thin_walled(geometry.coordinates.centerline_node_XY, fill(t, length(geometry.x))) 
 
     #remove NaNs to allow for writing to JSON
-    gross_section_properties.xs = -1
-    gross_section_properties.ys = -1
-    gross_section_properties.Cw = -1
-    gross_section_properties.B1 = -1
-    gross_section_properties.B2 = -1
-    gross_section_properties.wn = [-1, -1]
+    # gross_section_properties.xs = -1
+    # gross_section_properties.ys = -1
+    # gross_section_properties.Cw = -1
+    # gross_section_properties.B1 = -1
+    # gross_section_properties.B2 = -1
+    # gross_section_properties.wn = [-1, -1]
 
     ####
 
@@ -1104,12 +1104,12 @@ function rectangular_tube(section_inputs)
     xy_coords_with_holes = [[geometry.x[i], geometry.y[i]] for i in eachindex(geometry.x)]
     net_section_properties = SectionProperties.closed_thin_walled(xy_coords_with_holes, tg) 
 
-    net_section_properties.xs = -1
-    net_section_properties.ys = -1
-    net_section_properties.Cw = -1
-    net_section_properties.B1 = -1
-    net_section_properties.B2 = -1
-    net_section_properties.wn = [-1, -1]
+    # net_section_properties.xs = -1
+    # net_section_properties.ys = -1
+    # net_section_properties.Cw = -1
+    # net_section_properties.B1 = -1
+    # net_section_properties.B2 = -1
+    # net_section_properties.wn = [-1, -1]
 
     #local buckling, compression
     P = 1.0
