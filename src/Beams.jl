@@ -20,7 +20,7 @@ struct StepBeam
 
     input::StepBeamInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::SectionProperties.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesClosedObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
     local_buckling_Mxx_pos::CUFSM.Model
@@ -53,7 +53,7 @@ struct AngledStepBeam
 
     input::AngledStepBeamInput
     geometry::@NamedTuple{coordinates::CrossSectionGeometry.ThinWalled, x::Vector{Float64}, y::Vector{Float64}}
-    properties::SectionProperties.SectionPropertiesObject
+    properties::SectionProperties.SectionPropertiesClosedObject
     local_buckling_P::CUFSM.Model
     Pcrℓ::Float64
     local_buckling_Mxx_pos::CUFSM.Model
