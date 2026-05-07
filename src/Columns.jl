@@ -551,7 +551,7 @@ struct UniStrutIn
     distortional_buckling_P::CUFSM.Model
     Pcrd::Float64
     distortional_buckling_Mxx::CUFSM.Model
-    Mcrd_xx::Float64
+    Mcrd::Float64
     distortional_buckling_Myy_pos::CUFSM.Model
     Mcrd_yy_pos::Float64
 
@@ -584,7 +584,7 @@ struct UniStrutInRib
     distortional_buckling_P::CUFSM.Model
     Pcrd::Float64
     distortional_buckling_Mxx::CUFSM.Model
-    Mcrd_xx::Float64
+    Mcrd::Float64
     distortional_buckling_Myy_pos::CUFSM.Model
     Mcrd_yy_pos::Float64
 
@@ -3406,7 +3406,7 @@ function unistrut_in_with_rib(section_inputs)
 
     lengths = range(0.75 * Lcrd, 2.2 * Lcrd, 9)
     distortional_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
-    Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Mxx, eig))
+    Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Myy_pos, eig))
 
 
 
@@ -3593,7 +3593,7 @@ function unistrut_in(section_inputs)
 
     lengths = range(0.5 * Lcrd, 2.5 * Lcrd, 9)
     distortional_buckling_Myy_pos = CUFSM.Tools.open_section_analysis(geometry.x, geometry.y, td, lengths, E, ν, P, Mxx, Myy, M11, M22, constraints, springs, neigs)
-    Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Mxx, eig))
+    Mcrd_yy_pos  = minimum(CUFSM.Tools.get_load_factor(distortional_buckling_Myy_pos, eig))
 
 
 
