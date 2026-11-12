@@ -1976,7 +1976,7 @@ function hat_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de
         if (de_D1 != 0.0) & (dh_D1 != 0.0)
 
             #D1 flange hole minus
-            hole_node_index_start = sum(n[1:7]) + 1 + sum(n_r[1:7]) + 1
+            hole_node_index_start = sum(n[1:4]) + 1 + sum(n_r[1:4]) + 1   #lower D1 flange is segment 5
             hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
             hole_element_index_D1_minus = hole_node_index[2] - 1
             x[hole_node_index[1]] = de_D1 - dh_D1/2
