@@ -9,7 +9,7 @@ struct CeeLipsBraceInput
     H::Float64
     D::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -37,7 +37,7 @@ struct CeeInput
 
     H::Float64
     D::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -59,7 +59,7 @@ struct AngleInput
 
     H::Float64
     D::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -100,7 +100,7 @@ struct RectangularTubeBraceInput
 
     H::Float64
     D::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64

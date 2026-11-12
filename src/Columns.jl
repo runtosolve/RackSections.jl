@@ -7,7 +7,7 @@ struct CeeLipsInput
     H::Float64
     D::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -27,7 +27,7 @@ struct CeeLipsRibInput
     H::Float64
     D::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -114,7 +114,7 @@ struct RectangularTubeInput
 
     H::Float64
     D::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -158,11 +158,11 @@ struct HatLipsInput
 
     H::Float64
     D1::Float64
-    D2::Float64
+    W::Float64   #clear depth between step flanges, out-to-out of the faces facing each other; D2 is computed from W
     D::Float64
     A::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -186,11 +186,11 @@ struct HatLipsRibInput
 
     H::Float64
     D1::Float64
-    D2::Float64
+    W::Float64   #clear depth between step flanges, out-to-out of the faces facing each other; D2 is computed from W
     D::Float64
     A::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -217,11 +217,11 @@ struct HatLipsTrapezoidalRibInput
 
     H::Float64
     D1::Float64
-    D2::Float64
+    W::Float64   #clear depth between step flanges, out-to-out of the faces facing each other; D2 is computed from W
     D::Float64
     A1::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -350,10 +350,10 @@ struct HatInput
 
     H::Float64
     D1::Float64
-    D2::Float64
+    W::Float64   #clear depth between step flanges, out-to-out of the faces facing each other; D2 is computed from W
     D::Float64
     A::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -378,10 +378,10 @@ struct HatRibInput
 
     H::Float64
     D1::Float64
-    D2::Float64
+    W::Float64   #clear depth between step flanges, out-to-out of the faces facing each other; D2 is computed from W
     D::Float64
     A::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -484,7 +484,7 @@ struct UniStrutInput
     D::Float64
     L1::Float64
     L2::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -506,7 +506,7 @@ struct UniStrutRibInput
     D::Float64
     L1::Float64
     L2::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -1487,6 +1487,43 @@ end
 
 
 
+"""
+    hat_D2_from_W(H, W, D, D1, A, t)
+
+Hat sections: compute the step flange dimension `D2` from `W`, the clear depth between the
+two step flanges (underside of the top step flange to the top face of the bottom step flange).
+
+The step height, out-to-out from the outside face of the flange to the underside of the step
+flange, is `X = (H - W)/2`. `D3`, the horizontal run of the sloped step wall, follows from `X` and `A`,
+and `D2 = D - D1 - D3`. Specifying `W` instead of `D2` avoids the tan(180° - A) amplification of
+small errors in `D1 + D2` when `A` is close to 90°.
+"""
+function hat_D2_from_W(H, W, D, D1, A, t)
+
+    (0.0 < A < 180.0) || throw(ArgumentError("Hat section: A = $A° must be between 0° and 180°."))
+    (W > 0.0) || throw(ArgumentError("Hat section: W = $W must be greater than 0 (the step flanges would overlap)."))
+
+    X = (H - W) / 2
+    (X > t) || throw(ArgumentError("Hat section: W = $W gives a step height (H - W)/2 = $X that must exceed t = $t. W must be less than H - 2t = $(H - 2t)."))
+
+    A_rad = deg2rad(A)
+    D3 = (X - t) / tan(π - A_rad) - t * cos(A_rad / 2)
+
+    return D - D1 - D3
+
+end
+
+
+function check_hat_segments(segments, D1, D2, section_name)
+
+    i = findfirst(<=(0.0), segments)
+    isnothing(i) || throw(ArgumentError("$section_name: the inputs give a non-positive length ($(segments[i])) for segment $i of the cross-section. Check D, D1, W, A, L, t and the rib dimensions (D1 = $D1, computed D2 = $D2)."))
+
+    return nothing
+
+end
+
+
 function hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
 
     A = deg2rad(A)  #convert 
@@ -1507,6 +1544,7 @@ function hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2
     X = (D3 + yc) * tan(π - A) + t
 
     segments = [L-t, D2-t-yc, (X-t)/sin(π-A), D1, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D1, (X-t)/sin(π-A), D2-t-yc, L-t]
+    check_hat_segments(segments, D1, D2, "hat_with_lips_rib_geometry")
 
     θ = [-π/2, π, A, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π-A, 0.0, -π/2]
     r = [R-t, R-t, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R-t, R-t]
@@ -1608,7 +1646,9 @@ end
 
 function hat_with_lips_rib(section_inputs)
 
-     (; H, D1, D2, D, A, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, H_rib, R_rib_peak, R_rib_flat) = section_inputs
+     (; H, D1, W, D, A, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, H_rib, R_rib_peak, R_rib_flat) = section_inputs
+
+    D2 = hat_D2_from_W(H, W, D, D1, A, t)
 
 
     geometry = hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
@@ -1800,6 +1840,7 @@ function hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, 
         
         #define straight line segments 
         segments = [D2-yc, (X-t)/sin(π-A), D1, H/2-ΔTx, T_total, T_total, H/2-ΔTx, D1, (X-t)/sin(π-A), D2-yc]
+        check_hat_segments(segments, D1, D2, "hat_with_rib_geometry")
         
         θ = [π, A, π, -π/2, -π/2 + I/2, -π/2 - I/2, -π/2, 0.0, π-A, 0.0]
         r = [R-t, R, R, R_rib_flat, R_rib_peak - t, R_rib_flat, R, R, R-t]
@@ -1919,6 +1960,7 @@ function hat_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de
         
         #define straight line segments 
         segments = [D2-yc, (X-t)/sin(π-A), D1, H, D1, (X-t)/sin(π-A), D2-yc]
+        check_hat_segments(segments, D1, D2, "hat_geometry")
         
         θ = [π, A, π, -π/2, 0.0, π-A, 0.0]
         r = [R-t, R, R, R, R, R-t]
@@ -2027,7 +2069,7 @@ end
 function hat(section_inputs)
 
 
-     (; H, D1, D2, D, A, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2,
+     (; H, D1, W, D, A, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2,
      
      hole_pitch_H,
     hole_pitch_D1,
@@ -2035,6 +2077,8 @@ function hat(section_inputs)
     hole_length_H,
     hole_length_D1,
     hole_length_D2) = section_inputs
+
+    D2 = hat_D2_from_W(H, W, D, D1, A, t)
 
     geometry = hat_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2)
     #gross section properties 
@@ -2220,7 +2264,7 @@ end
 function hat_with_rib(section_inputs)
 
 
-     (; H, D1, D2, D, A, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2,
+     (; H, D1, W, D, A, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2,
      
      hole_pitch_H,
     hole_pitch_D1,
@@ -2230,6 +2274,8 @@ function hat_with_rib(section_inputs)
     hole_length_D2,
      
      H_rib, R_rib_peak, R_rib_flat) = section_inputs
+
+    D2 = hat_D2_from_W(H, W, D, D1, A, t)
 
 
     geometry = hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
@@ -2420,6 +2466,7 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H,
 
 
     segments = [L-t, D2-t-yc1, (X-t)/sin(π-A1), D1, H1, (H_rib - t) / sin(π - A2), W_rib - 2 * yc2, (H_rib - t) / sin(π - A2), H1, D1, (X-t)/sin(π-A1), D2-t-yc1, L-t]
+    check_hat_segments(segments, D1, D2, "hat_with_lips_trapezoidal_rib_geometry")
     
 
     θ = [-π/2, π, A1, π, -π/2, -π/2 + (π - A2), -π/2, -π/2 - (π - A2), -π/2, 0.0, π-A1, 0.0, -π/2]
@@ -2538,7 +2585,9 @@ end
 function hat_with_lips_trapezoidal_rib(section_inputs)
 
 
-     (; H, D1, D2, D, A1, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, H_rib, A2, W_rib) = section_inputs
+     (; H, D1, W, D, A1, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2, H_rib, A2, W_rib) = section_inputs
+
+    D2 = hat_D2_from_W(H, W, D, D1, A1, t)
 
     geometry = hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, A2, H_rib, W_rib)
     #gross section properties 
@@ -2718,6 +2767,7 @@ function hat_with_lips_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de
     X = (D3 + yc) * tan(π - A) + t
 
     segments = [L-t, D2-t-yc, (X-t)/sin(π-A), D1, H, D1, (X-t)/sin(π-A), D2-t-yc, L-t]
+    check_hat_segments(segments, D1, D2, "hat_with_lips_geometry")
 
     θ = [-π/2, π, A, π, -π/2, 0.0, π-A, 0.0, -π/2]
     r = [R-t, R-t, R, R, R, R, R-t, R-t]
@@ -2823,7 +2873,9 @@ end
 
 function hat_with_lips(section_inputs)
 
-     (; H, D1, D2, D, A, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2) = section_inputs
+     (; H, D1, W, D, A, L, R, t, E, ν, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, hole_pitch_H, hole_pitch_D1, hole_pitch_D2, hole_length_H, hole_length_D1, hole_length_D2) = section_inputs
+
+    D2 = hat_D2_from_W(H, W, D, D1, A, t)
 
     geometry = hat_with_lips_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2)
     #gross section properties 

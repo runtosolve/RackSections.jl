@@ -21,4 +21,5 @@ RMI = {rev = "main", url = "https://github.com/runtosolve/RMI.jl.git"}
 SectionProperties = {rev = "main", url = "https://github.com/runtosolve/SectionProperties.jl.git"}
 
 [compat]
-CUFSM = "0.1.0"
+CUFSM = "0.2"
+julia = "1.11"

@@ -8,7 +8,7 @@ struct StepBeamInput
     D::Float64
     W::Float64
     L::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
@@ -41,7 +41,7 @@ struct AngledStepBeamInput
     W::Float64
     L::Float64
     A::Float64
-    R::Float64
+    R::Float64   #outside bend radius (inside radius + t), as sent by the OneRack frontend
     t::Float64
     E::Float64
     ν::Float64
