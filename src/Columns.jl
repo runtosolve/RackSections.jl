@@ -238,8 +238,8 @@ struct HatLipsTrapezoidalRibInput
     hole_length_D1::Float64
     hole_length_D2::Float64
     A2::Float64
-    H_rib::Float64
-    W_rib::Float64
+    H_rib::Float64   #rib depth, out-to-out: web outside face to rib outside face
+    W_rib::Float64   #rib flat length on the rib's outside face (away from the web), between outside corner intersections
 end
 
 
@@ -2453,7 +2453,6 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H,
     A2 = deg2rad(A2)  #convert 
 
     yc1 = t * cos(A1/2)
-    yc2 = t * cos(A2/2)
 
     #calculate X 
     D3 = D - D2 - D1 
@@ -2462,10 +2461,15 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H,
     
     H2 = (H_rib - t) / tan(π - A2)
 
-    H1 = (H - (W_rib - yc2 - yc2) - H2 - H2)/2
+    #W_rib is measured on the rib's outside face between outside corner intersections (OneRack Shape 6).
+    #The segments follow the reference surface, which along the rib flat is the web-side face; at each of the two
+    #rib-flat bends (bend angle π - A2) the corner intersection on that face sits t*tan((π - A2)/2) inboard.
+    W_rib_ref = W_rib - 2 * t * tan((π - A2) / 2)
+
+    H1 = (H - W_rib_ref - H2 - H2)/2
 
 
-    segments = [L-t, D2-t-yc1, (X-t)/sin(π-A1), D1, H1, (H_rib - t) / sin(π - A2), W_rib - 2 * yc2, (H_rib - t) / sin(π - A2), H1, D1, (X-t)/sin(π-A1), D2-t-yc1, L-t]
+    segments = [L-t, D2-t-yc1, (X-t)/sin(π-A1), D1, H1, (H_rib - t) / sin(π - A2), W_rib_ref, (H_rib - t) / sin(π - A2), H1, D1, (X-t)/sin(π-A1), D2-t-yc1, L-t]
     check_hat_segments(segments, D1, D2, "hat_with_lips_trapezoidal_rib_geometry")
     
 
