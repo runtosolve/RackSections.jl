@@ -930,6 +930,7 @@ function cee_with_lips_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D)
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "cee_with_lips_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -1038,6 +1039,7 @@ function rectangular_tube_geometry(H, D, R, t, dh_H, dh_D, de_H, de_D)
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "rectangular_tube_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -1289,6 +1291,7 @@ function cee_with_lips_rib_geometry(H, D, L, R, t, dh_H, dh_D, de_H, de_D, H_rib
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "cee_with_lips_rib_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -1524,6 +1527,61 @@ function check_hat_segments(segments, D1, D2, section_name)
 end
 
 
+"""
+    check_holes_fit(x, y, hole_element_indices, section_name)
+
+Each hole is modeled by moving the two interior nodes of a flat to the hole edges; element `e` (nodes `e`, `e+1`)
+is the hole. If a hole is wider than its flat, or overlaps the opposite hole on the same flat, those nodes land
+outside the flat or out of order and the mesh folds back on itself. Throw an ArgumentError in that case.
+`hole_element_indices` is a NamedTuple such as `(H = [...], D1 = [...])`; index 0 means no hole.
+"""
+function check_holes_fit(x, y, hole_element_indices, section_name)
+
+    member_names = (H = "web (dh_H, de_H)", D = "flange (dh_D, de_D)", D1 = "D1 flange (dh_D1, de_D1)", D2 = "D2 flange (dh_D2, de_D2)")
+    tol = 1e-3
+    n = length(x)
+
+    for (member, elements) in pairs(hole_element_indices), e in elements
+
+        (e == 0) && continue
+        (2 <= e && e + 2 <= n) || throw(ArgumentError("$section_name: $(member_names[member]) hole element $e is at the end of the cross-section."))
+
+        #the flat runs along x (horizontal) or y (vertical); take the direction from the hole's unmoved neighbours
+        horizontal = abs(x[e+2] - x[e-1]) >= abs(y[e+2] - y[e-1])
+        along, perp = horizontal ? (x, y) : (y, x)
+        p = perp[e]
+
+        #extend the flat in both directions while nodes stay on the same line
+        first_node = e
+        while first_node > 1 && abs(perp[first_node-1] - p) < tol
+            first_node -= 1
+        end
+        last_node = e + 1
+        while last_node < n && abs(perp[last_node+1] - p) < tol
+            last_node += 1
+        end
+
+        hole_start, hole_end = minmax(along[e], along[e+1])
+        flat_start, flat_end = minmax(along[first_node], along[last_node])
+        fmt(v) = round(v, digits=4)
+
+        if (first_node == e) || (last_node == e + 1) || (hole_start <= flat_start + tol) || (hole_end >= flat_end - tol)
+            throw(ArgumentError("$section_name: the $(member_names[member]) hole does not fit on its flat. The hole spans $(fmt(hole_start)) to $(fmt(hole_end)) but the flat runs from $(fmt(flat_start)) to $(fmt(flat_end)). Reduce the hole size or move its location."))
+        end
+
+        steps = diff(along[first_node:last_node])
+        direction = sign(along[last_node] - along[first_node])
+        if any(s -> sign(s) != direction || abs(s) < 1e-9, steps)
+            throw(ArgumentError("$section_name: the $(member_names[member]) hole (spanning $(fmt(hole_start)) to $(fmt(hole_end))) overlaps the other hole on the same flat (the flat runs from $(fmt(flat_start)) to $(fmt(flat_end))). Reduce the hole size or move its location."))
+        end
+
+    end
+
+    return nothing
+
+end
+
+
 function hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de_D2, H_rib, R_rib_peak, R_rib_flat)
 
     A = deg2rad(A)  #convert 
@@ -1635,6 +1693,7 @@ function hat_with_lips_rib_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
 
+    check_holes_fit(x, y, (D1 = D1_hole_element_index, D2 = D2_hole_element_index, H = H_hole_element_index,), "hat_with_lips_rib_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -1935,6 +1994,7 @@ function hat_with_rib_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, 
         H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
         
         
+        check_holes_fit(x, y, (D1 = D1_hole_element_index, D2 = D2_hole_element_index, H = H_hole_element_index,), "hat_with_rib_geometry")
         geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
         
 
@@ -2055,6 +2115,7 @@ function hat_geometry(H, D1, D2, D, A, R, t, dh_H, dh_D1, dh_D2, de_H, de_D1, de
       
        
         
+        check_holes_fit(x, y, (D1 = D1_hole_element_index, D2 = D2_hole_element_index, H = H_hole_element_index,), "hat_geometry")
         geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
         
 
@@ -2578,6 +2639,7 @@ function hat_with_lips_trapezoidal_rib_geometry(H, D1, D2, D, A1, L, R, t, dh_H,
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D1 = D1_hole_element_index, D2 = D2_hole_element_index, H = H_hole_element_index,), "hat_with_lips_trapezoidal_rib_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -2863,6 +2925,7 @@ function hat_with_lips_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
 
+    check_holes_fit(x, y, (D1 = D1_hole_element_index, D2 = D2_hole_element_index, H = H_hole_element_index,), "hat_with_lips_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D1_hole_element_index = D1_hole_element_index, D2_hole_element_index = D2_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -3165,6 +3228,7 @@ function unistrut_in_with_rib_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "unistrut_in_with_rib_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -3279,6 +3343,7 @@ function unistrut_in_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D)
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "unistrut_in_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -3777,6 +3842,7 @@ function unistrut_out_with_rib_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "unistrut_out_with_rib_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
@@ -3886,6 +3952,7 @@ function unistrut_out_geometry(H, D, L1, L2, R, t, dh_H, dh_D, de_H, de_D)
 
     H_hole_element_index = [hole_element_index_H_plus; hole_element_index_H_minus]
 
+    check_holes_fit(x, y, (D = D_hole_element_index, H = H_hole_element_index,), "unistrut_out_geometry")
     geometry = (coordinates = section_geometry, x=x, y=y, D_hole_element_index = D_hole_element_index, H_hole_element_index=H_hole_element_index)
 
     return geometry
