@@ -2787,7 +2787,7 @@ function hat_with_lips_geometry(H, D1, D2, D, A, L, R, t, dh_H, dh_D1, dh_D2, de
     if (de_D1 !=0) & (dh_D1 !=0)
 
         #D1 flange hole minus
-        hole_node_index_start = sum(n[1:8]) + 1 + sum(n_r[1:8]) + 1
+        hole_node_index_start = sum(n[1:5]) + 1 + sum(n_r[1:5]) + 1   #lower D1 flange is segment 6
         hole_node_index = [hole_node_index_start, hole_node_index_start + 1]
         hole_element_index_D1_minus = hole_node_index[2] - 1
         x[hole_node_index[1]] = de_D1 - dh_D1/2
